@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Product</title>
+  <!-- The description will be populated by product.js -->
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <!-- Whop checkout loader as documented by Whop for embedded checkout【617832647045324†L561-L590】 -->
+  <script async defer src="https://js.whop.com/static/checkout/loader.js"></script>
+  <link rel="stylesheet" href="product.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Left column contains media, description and reviews -->
+    <div class="left">
+      <video id="player" controls></video>
+      <div id="thumbnails" class="thumbnails"></div>
+      <div id="description" class="description"></div>
+      <div id="reviews" class="reviews"></div>
+    </div>
+    <!-- Right column holds the product information, addons and checkout widget -->
+    <div class="right">
+      <h1 id="product-title"></h1>
+      <p id="price-line"></p>
+      <p id="delivery-note"></p>
+      <div id="addons" class="addons"></div>
+      <!-- Container for Whop checkout embed. The plan id will be set in product.js -->
+      <div id="whop-checkout" class="whop"></div>
+    </div>
+  </div>
+  <script src="product.js"></script>
+</body>
+</html>

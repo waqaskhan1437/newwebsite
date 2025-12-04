@@ -1,0 +1,82 @@
+/*
+ * Minimal styling for the product page. The layout uses a simple flexbox to
+ * create two columns: media and details. Keep the CSS concise to reduce
+ * unnecessary bloat. Each rule occupies one line to ensure the file stays
+ * well below the 300‑line limit.
+ */
+
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.left {
+  flex: 1 1 60%;
+}
+
+.right {
+  flex: 1 1 38%;
+  border-left: 1px solid #ddd;
+  padding-left: 20px;
+}
+
+#player {
+  width: 100%;
+  height: auto;
+  background: #000;
+}
+
+.thumbnails {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.thumbnails img {
+  width: 80px;
+  height: 60px;
+  object-fit: cover;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  transition: border-color 0.2s ease;
+}
+
+.thumbnails img.active {
+  border-color: #000;
+}
+
+.description,
+.reviews {
+  margin-top: 20px;
+}
+
+.addons {
+  margin-top: 20px;
+}
+
+.review-item {
+  margin-bottom: 10px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.review-item strong {
+  display: block;
+  font-weight: bold;
+}
+
+/* Price styling for sale and old prices */
+.sale-price {
+  color: #e53935;
+  font-weight: bold;
+  margin-right: 8px;
+}
+.old-price {
+  text-decoration: line-through;
+  color: #888;
+}

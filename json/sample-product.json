@@ -1,0 +1,46 @@
+{
+  "title": "Digital Course: Learn JavaScript",
+  "seoTitle": "Learn JavaScript Course – Comprehensive Guide",
+  "description": "<p>Master JavaScript with our step‑by‑step digital course. This course covers fundamentals to advanced topics with interactive examples and projects.</p>",
+  "seoDescription": "Enroll in our JavaScript course to gain in‑depth knowledge and build real‑world applications.",
+  "seoKeywords": ["JavaScript", "course", "web development", "programming"],
+  "price": 50,
+  "salePrice": 35,
+  "instantDelivery": true,
+  "deliveryTime": "Instant access after purchase",
+  "media": {
+    "video": "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
+    "thumbnails": [
+      "https://via.placeholder.com/150?text=Thumbnail+1",
+      "https://via.placeholder.com/150?text=Thumbnail+2"
+    ]
+  },
+  "addons": [
+    {
+      "group": "Extra Materials",
+      "items": [
+        {
+          "name": "Cheat Sheet",
+          "description": "Quick reference cheat sheet for JavaScript syntax.",
+          "price": 5
+        },
+        {
+          "name": "Code Samples",
+          "description": "Access to downloadable code samples used in the course.",
+          "price": 10
+        }
+      ]
+    }
+  ],
+  "reviews": [
+    {
+      "user": "Ayesha",
+      "comment": "Amazing course! I built my first web app after finishing it."
+    },
+    {
+      "user": "Ravi",
+      "comment": "Great content and easy to follow. Highly recommended."
+    }
+  ],
+  "whopPlanId": "plan_TEST123"
+}
