@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Product - Storefront</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+  </head>
+  <body class="page page-product">
+    <header class="site-header">
+      <div class="container header-inner">
+        <h1 class="logo"><a href="index.html">Storefront</a></h1>
+      </div>
+    </header>
+
+    <main class="site-main">
+      <div class="container">
+        <div id="product-root" class="product-layout two-column">
+          <div class="product-left">
+            <div id="product-media" class="product-media">
+              <!-- Media player will be rendered here -->
+            </div>
+            <div id="product-thumbnails" class="product-thumbnails">
+              <!-- Thumbnails will be rendered here -->
+            </div>
+            <section class="product-description">
+              <h2>Description</h2>
+              <div id="product-description-body"></div>
+            </section>
+            <section class="product-reviews">
+              <header class="section-header">
+                <h2>Reviews</h2>
+                <div id="product-review-summary" class="review-summary"></div>
+              </header>
+              <div id="product-reviews-list" class="reviews-list">
+                <!-- Reviews will be rendered here -->
+              </div>
+            </section>
+          </div>
+
+          <aside class="product-right">
+            <div class="product-summary-card">
+              <h1 id="product-title" class="product-title"></h1>
+              <div class="product-meta-line">
+                <span id="product-delivery-time" class="product-delivery-time"></span>
+                <span class="dot-separator">&middot;</span>
+                <span id="product-price" class="product-price"></span>
+              </div>
+              <p id="product-delivery-note" class="product-delivery-note"></p>
+
+              <div id="product-addons" class="product-addons">
+                <!-- Addons checkboxes will be rendered here -->
+              </div>
+
+              <button id="buy-button" class="btn btn-primary">
+                Buy now
+              </button>
+
+              <p class="small-note">
+                Secure checkout powered by Whop.
+              </p>
+            </div>
+          </aside>
+        </div>
+        <div id="product-error" class="error-message" hidden>
+          Product not found or failed to load.
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p class="footer-text">&copy; <span id="year"></span> Storefront.</p>
+      </div>
+    </footer>
+
+    <script src="js/utils.js"></script>
+    <script src="js/api-client.js"></script>
+    <script src="js/ui-components.js"></script>
+    <script src="js/product-page.js"></script>
+  </body>
+</html>
