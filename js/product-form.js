@@ -1,6 +1,7 @@
 /*
- * Admin product form logic. Product info + media + SEO form ready.
- * Actual save + R2 upload next step me implement hoga.
+ * Admin product form logic.
+ * Abhi product info + media + SEO + addons ka form ready kar rahe hain.
+ * Save / R2 upload / DB integration next steps me aayega.
  */
 
 ;(async function initProductForm() {
@@ -22,6 +23,7 @@
         if (typeof populateSeoForm === 'function') {
           populateSeoForm(form, product);
         }
+        // addons ka load DB se baad me karein ge
       }
     } catch (e) {
       console.error(e);
@@ -44,6 +46,7 @@
     const media = readMediaFields(form);
     const seo = typeof readSeoFields === 'function' ? readSeoFields(form) : { meta: {} };
     const addons = typeof readAddonsConfig === 'function' ? readAddonsConfig(form) : [];
+
     const payload = { ...base, ...media.meta, ...seo.meta, addons };
 
     console.log('Product payload', payload);
