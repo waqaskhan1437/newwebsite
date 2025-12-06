@@ -1,0 +1,24 @@
+/*
+ * Styles for the admin navigation bar.  This stylesheet keeps the
+ * admin nav distinct from the main site styles while respecting
+ * the existing design system.  It remains under the 200‑line limit.
+ */
+
+.admin-nav {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.admin-nav a {
+  text-decoration: none;
+  color: var(--text-main);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.admin-nav a.active {
+  color: var(--primary);
+  text-decoration: underline;
+}

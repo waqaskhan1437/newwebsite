@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin – Orders</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/admin-nav.css">
+</head>
+<body class="admin-page">
+  <div class="admin-shell">
+    <header class="admin-header">
+      <h1>Orders Management</h1>
+      <p class="admin-subtitle">View and manage customer orders.</p>
+      <nav class="admin-nav" style="margin-top: 1rem;">
+        <a href="index.html">Products</a>
+        <a href="orders.html" class="active">Orders</a>
+        <a href="whop-settings.html">Whop Settings</a>
+        <a href="reviews.html">Reviews</a>
+      </nav>
+    </header>
+    <main>
+      <div class="card-section">
+        <table id="orders-table" class="admin-table"></table>
+      </div>
+    </main>
+  </div>
+  <script src="../js/api.js"></script>
+  <script src="../js/admin/orders.js"></script>
+</body>
+</html>

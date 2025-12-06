@@ -70,6 +70,24 @@ function saveArchiveLink(data) {
   });
 }
 
+/**
+ * Retrieve all orders for the admin dashboard.  This helper wraps
+ * a GET request to `/api/orders` and returns an object like
+ * `{ orders: […] }` where each order includes decrypted email and
+ * amount when available.
+ */
+function getOrders() {
+  return apiFetch('/api/orders');
+}
+
+/**
+ * Retrieve all reviews across products.  Used by the admin review
+ * management page.  Returns an object like `{ reviews: […] }`.
+ */
+function getAllReviews() {
+  return apiFetch('/api/reviews');
+}
+
 // Export functions to the global scope so they can be called from
 // inline scripts in HTML files.  Without this assignment, the
 // functions would be module‑scoped and unavailable to the page.
@@ -110,3 +128,6 @@ function saveWhopSettings(data) {
 // avoid polluting the global namespace.
 window.getWhopSettings = getWhopSettings;
 window.saveWhopSettings = saveWhopSettings;
+// Expose new admin helpers
+window.getOrders = getOrders;
+window.getAllReviews = getAllReviews;

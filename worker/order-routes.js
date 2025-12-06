@@ -9,7 +9,7 @@
  */
 
 import { jsonResponse } from './utils.js';
-import { encryptData, encryptBytesWithIvPrefix } from './crypto.js';
+import { encryptData, encryptBytesWithIvPrefix, deriveAesKey } from './crypto.js';
 
 /**
  * Create a new encrypted order record. The body must contain at
@@ -95,4 +95,50 @@ export async function uploadEncryptedFileToArchive(req, env) {
   const publicUrl = `https://archive.org/download/${itemId}/${filename}`;
   await env.DB.prepare(`UPDATE orders SET archive_url = ? WHERE order_id = ?`).bind(publicUrl, orderId).run();
   return jsonResponse({ success: true, archiveUrl: publicUrl });
+}
+
+/**
+ * List all orders with decrypted details.  The admin dashboard uses
+ * this endpoint to view order history.  Sensitive fields like email
+ * and amount are decrypted using the SECRET_KEY.  If the secret is
+ * missing, email and amount will remain empty.
+ *
+ * @param {any} env Worker environment with DB and SECRET_KEY
+ */
+export async function listOrders(env) {
+  const res = await env.DB.prepare(
+    `SELECT id, order_id, product_id, encrypted_data, iv, archive_url, status, created_at FROM orders ORDER BY id DESC`
+  ).all();
+  const orders = [];
+  const rows = res.results || [];
+  for (const row of rows) {
+    let email = '';
+    let amount = null;
+    try {
+      if (env.SECRET_KEY) {
+        const key = await deriveAesKey(env.SECRET_KEY);
+        // Decode base64 IV and ciphertext
+        const ivArr = Uint8Array.from(atob(row.iv), (c) => c.charCodeAt(0));
+        const ctArr = Uint8Array.from(atob(row.encrypted_data), (c) => c.charCodeAt(0));
+        const plainBuf = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: ivArr }, key, ctArr);
+        const plainText = new TextDecoder().decode(plainBuf);
+        const obj = JSON.parse(plainText);
+        email = obj.email || '';
+        amount = obj.amount || null;
+      }
+    } catch (_) {
+      // Ignore decryption errors and continue with blank fields
+    }
+    orders.push({
+      id: row.id,
+      order_id: row.order_id,
+      product_id: row.product_id,
+      email,
+      amount,
+      status: row.status,
+      archive_url: row.archive_url,
+      created_at: row.created_at
+    });
+  }
+  return jsonResponse({ orders });
 }

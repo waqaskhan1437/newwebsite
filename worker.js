@@ -14,11 +14,13 @@ import {
   saveProduct,
   addReview,
   getReviews
+  , listAllReviews
 } from './worker/product-routes.js';
 import {
   saveEncryptedOrder,
   saveArchiveLink,
   uploadEncryptedFileToArchive
+  , listOrders
 } from './worker/order-routes.js';
 import { handleSecureDownload } from './worker/secure-download.js';
 import { getWhopSettings, saveWhopSettings } from './worker/settings-routes.js';
@@ -73,6 +75,10 @@ export default {
         if (req.method === 'POST' && pathname === '/api/order/upload-encrypted-file') {
           return uploadEncryptedFileToArchive(req, env);
         }
+        // Orders listing (admin)
+        if (req.method === 'GET' && pathname === '/api/orders') {
+          return listOrders(env);
+        }
         // Review routes
         if (req.method === 'POST' && pathname === '/api/reviews/add') {
           return addReview(req, env);
@@ -80,6 +86,10 @@ export default {
         if (req.method === 'GET' && pathname.startsWith('/api/reviews/')) {
           const id = pathname.split('/').pop();
           return getReviews(env, id);
+        }
+        // List all reviews (admin) when no product id is specified
+        if (req.method === 'GET' && pathname === '/api/reviews') {
+          return listAllReviews(env);
         }
 
         // Whop settings routes

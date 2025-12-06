@@ -168,3 +168,20 @@ export async function getReviews(env, productId) {
   ).bind(productId).all();
   return jsonResponse({ reviews: res.results || [] });
 }
+
+/**
+ * List all reviews across products.  Used by the admin dashboard
+ * to moderate feedback.  The response includes the product title
+ * so admins can identify which product each review refers to.
+ *
+ * @param {any} env Worker environment with DB
+ */
+export async function listAllReviews(env) {
+  const res = await env.DB.prepare(
+    `SELECT r.id, r.product_id, r.author_name, r.rating, r.comment, r.status, r.created_at, p.title AS product_title
+     FROM reviews r
+     LEFT JOIN products p ON r.product_id = p.id
+     ORDER BY r.created_at DESC`
+  ).all();
+  return jsonResponse({ reviews: res.results || [] });
+}

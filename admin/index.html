@@ -5,15 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard – Products</title>
   <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/admin-nav.css">
 </head>
 <body class="admin-page">
   <div class="admin-shell">
     <header class="admin-header">
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-        <div>
-          <h1>Products Dashboard</h1>
-          <p class="admin-subtitle">Manage your store catalog, edit prices, and update media.</p>
-        </div>
+      <h1>Products Management</h1>
+      <p class="admin-subtitle">Manage your store catalog, edit prices, and update media.</p>
+      <nav class="admin-nav" style="margin: 1rem 0;">
+        <a href="index.html" class="active">Products</a>
+        <a href="orders.html">Orders</a>
+        <a href="whop-settings.html">Whop Settings</a>
+        <a href="reviews.html">Reviews</a>
+      </nav>
+      <div style="margin-bottom:1rem; text-align:right;">
         <a href="product-form.html" class="btn">Add New Product</a>
       </div>
     </header>

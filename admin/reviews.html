@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin – Reviews</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/admin-nav.css">
+</head>
+<body class="admin-page">
+  <div class="admin-shell">
+    <header class="admin-header">
+      <h1>Reviews Management</h1>
+      <p class="admin-subtitle">View feedback left by customers across all products.</p>
+      <nav class="admin-nav" style="margin-top: 1rem;">
+        <a href="index.html">Products</a>
+        <a href="orders.html">Orders</a>
+        <a href="whop-settings.html">Whop Settings</a>
+        <a href="reviews.html" class="active">Reviews</a>
+      </nav>
+    </header>
+    <main>
+      <div class="card-section">
+        <table id="reviews-table" class="admin-table"></table>
+      </div>
+    </main>
+  </div>
+  <script src="../js/api.js"></script>
+  <script src="../js/admin/reviews.js"></script>
+</body>
+</html>
