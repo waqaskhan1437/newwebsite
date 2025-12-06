@@ -6,107 +6,133 @@
   <title>Admin – Product Form</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
-<body>
-  <main>
-    <h1>Product Form</h1>
-    <form id="product-form">
-      <div>
-        <label>Title
-          <input type="text" name="title" required>
-        </label>
-      </div>
-      <div>
-        <label>Slug
-          <input type="text" name="slug">
-        </label>
-      </div>
-      <div>
-        <label>Description
-          <textarea name="description"></textarea>
-        </label>
-      </div>
-      <div>
-        <label>Normal Price
-          <input type="number" name="normal_price" step="0.01">
-        </label>
-      </div>
-      <div>
-        <label>Sale Price
-          <input type="number" name="sale_price" step="0.01">
-        </label>
-      </div>
-      <div>
-        <label><input type="checkbox" name="instant_delivery"> Instant Delivery</label>
-      </div>
-      <div>
-        <label>Normal Delivery Text
-          <input type="text" name="normal_delivery_text">
-        </label>
-      </div>
+<body class="admin-page">
+  <div class="admin-shell">
+    <header class="admin-header">
+      <h1>Product Form</h1>
+      <p class="admin-subtitle">Product details, media, custom form fields aur SEO aik neat layout me.</p>
+    </header>
+    <main>
+      <form id="product-form" class="admin-form">
+        <section class="card-section">
+          <h2 class="section-title">Basic details</h2>
+          <div class="form-grid-2">
+            <div class="form-field">
+              <label>Title
+                <input type="text" name="title" required>
+              </label>
+            </div>
+            <div class="form-field">
+              <label>Slug
+                <input type="text" name="slug">
+              </label>
+            </div>
+          </div>
+          <div class="form-field">
+            <label>Description
+              <textarea name="description"></textarea>
+            </label>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-field">
+              <label>Normal Price
+                <input type="number" name="normal_price" step="0.01">
+              </label>
+            </div>
+            <div class="form-field">
+              <label>Sale Price
+                <input type="number" name="sale_price" step="0.01">
+              </label>
+            </div>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-field form-field-inline">
+              <label>
+                <input type="checkbox" name="instant_delivery">
+                <span>Instant Delivery</span>
+              </label>
+            </div>
+            <div class="form-field">
+              <label>Normal Delivery Text
+                <input type="text" name="normal_delivery_text">
+              </label>
+            </div>
+          </div>
+        </section>
 
-      <fieldset class="field-group">
-        <legend>Thumbnail image</legend>
-        <label>Upload image
-          <input type="file" name="thumbnail_file" accept="image/*">
-        </label>
-        <span class="field-note">ya image URL</span>
-        <label>
-          <input type="text" name="thumbnail_url" placeholder="https://example.com/thumb.jpg">
-        </label>
-      </fieldset>
+        <section class="card-section">
+          <h2 class="section-title">Media</h2>
+          <fieldset class="field-group">
+            <legend>Thumbnail image</legend>
+            <label>Upload image
+              <input type="file" name="thumbnail_file" accept="image/*">
+            </label>
+            <span class="field-note">ya image URL</span>
+            <label>
+              <input type="text" name="thumbnail_url" placeholder="https://example.com/thumb.jpg">
+            </label>
+          </fieldset>
 
-      <fieldset class="field-group" id="gallery-wrapper">
-        <legend>Gallery images</legend>
-        <div class="gallery-row">
-          <label>Upload image
-            <input type="file" name="gallery_files[]" accept="image/*">
-          </label>
-          <span class="field-note">ya image URL</span>
-          <label>
-            <input type="text" name="gallery_urls[]" placeholder="https://example.com/image.jpg">
-          </label>
+          <fieldset class="field-group" id="gallery-wrapper">
+            <legend>Gallery images</legend>
+            <div class="gallery-row">
+              <label>Upload image
+                <input type="file" name="gallery_files[]" accept="image/*">
+              </label>
+              <span class="field-note">ya image URL</span>
+              <label>
+                <input type="text" name="gallery_urls[]" placeholder="https://example.com/image.jpg">
+              </label>
+            </div>
+            <button type="button" id="add-gallery-image" class="btn btn-secondary">Add more images</button>
+          </fieldset>
+
+          <fieldset class="field-group">
+            <legend>Product video</legend>
+            <label>Upload video
+              <input type="file" name="video_file" accept="video/*">
+            </label>
+            <span class="field-note">ya video URL</span>
+            <label>
+              <input type="text" name="video_url" placeholder="https://example.com/video.mp4">
+            </label>
+          </fieldset>
+        </section>
+
+        <section class="card-section">
+          <h2 class="section-title">Custom form fields (addons)</h2>
+          <fieldset class="field-group" id="addons-builder">
+            <p class="field-note">Globo style form: dropdowns, radio buttons, checkboxes, file uploads waghera yahan se add karo.</p>
+            <div id="addons-fields"></div>
+            <button type="button" id="add-addon-field" class="btn">Add field</button>
+            <input type="hidden" name="addons_json" id="addons-json">
+          </fieldset>
+        </section>
+
+        <section class="card-section">
+          <h2 class="section-title">SEO settings</h2>
+          <fieldset class="field-group">
+            <label>SEO meta title
+              <input type="text" name="seo_title" maxlength="160">
+            </label>
+            <label>SEO meta description
+              <textarea name="seo_description" rows="3" maxlength="320"></textarea>
+            </label>
+            <label>SEO focus keywords
+              <input type="text" name="seo_keywords" placeholder="keyword1, keyword2">
+            </label>
+            <label>Canonical URL (optional)
+              <input type="text" name="seo_canonical" placeholder="https://example.com/product">
+            </label>
+          </fieldset>
+        </section>
+
+        <div class="form-actions">
+          <button type="submit" class="btn">Save product</button>
         </div>
-        <button type="button" id="add-gallery-image" class="btn">Add more images</button>
-      </fieldset>
-
-      <fieldset class="field-group">
-        <legend>Product video</legend>
-        <label>Upload video
-          <input type="file" name="video_file" accept="video/*">
-        </label>
-        <span class="field-note">ya video URL</span>
-        <label>
-          <input type="text" name="video_url" placeholder="https://example.com/video.mp4">
-        </label>
-      </fieldset>
-
-      <fieldset class="field-group" id="addons-builder">
-        <legend>Product form fields</legend>
-        <p class="field-note">Yahan se Globo jaisa custom form banao (dropdowns, radio buttons, checkboxes, file uploads, etc.).</p>
-        <div id="addons-fields"></div>
-        <button type="button" id="add-addon-field" class="btn">Add field</button>
-        <input type="hidden" name="addons_json" id="addons-json">
-      </fieldset>
-
-      <fieldset class="field-group">
-        <legend>SEO settings</legend>
-        <label>SEO meta title
-          <input type="text" name="seo_title" maxlength="160">
-        </label>
-        <label>SEO meta description
-          <textarea name="seo_description" rows="3" maxlength="320"></textarea>
-        </label>
-        <label>SEO focus keywords
-          <input type="text" name="seo_keywords" placeholder="keyword1, keyword2">
-        </label>
-        <label>Canonical URL (optional)
-          <input type="text" name="seo_canonical" placeholder="https://example.com/product">
-        </label>
-      </fieldset>
-
-      <button type="submit" class="btn">Save</button>
-    </form>
-  </main>
+      </form>
+    </main>
+  </div>
   <script src="../js/api.js"></script>
   <script src="../js/product-addons.js"></script>
   <script src="../js/product-seo.js"></script>
