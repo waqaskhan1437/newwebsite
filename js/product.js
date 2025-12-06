@@ -1,9 +1,6 @@
-/*
- * Logic for the individual product page (product.html).
- * Loads product details by ID from the URL query string, renders a
- * two‑column layout with media on the left and info on the right,
- * and allows the customer to choose addons and submit an order.
- */
+// Product detail page logic.  Fetches a product by ID from the query
+// string and renders a two‑column layout: media on the left and info
+// (title, price, delivery, digital note, addons) on the right.
 
 ;(async function initProductPage() {
   const params = new URLSearchParams(location.search);
@@ -164,89 +161,67 @@ function renderProduct(el, product, addonGroups) {
   const wrapper = document.createElement('div');
   wrapper.className = 'product-page';
 
-  // Left: media (video + thumbnails + description + reviews placeholder)
+  // Left: media (video or image) + thumbnails/slider + description + reviews
   const media = document.createElement('div');
   media.className = 'product-media';
-  // Video or placeholder
+  let mainMedia;
+  // Choose main media element: video if available, otherwise an image
   if (product.video_url) {
     const url = product.video_url;
-    /**
-     * Detects the provider based on the URL and returns an appropriate
-     * element for embedding. For YouTube and Vimeo we use an <iframe>
-     * embed; for other providers (e.g. Cloudinary, Bunny, direct MP4)
-     * we fall back to an HTML5 <video> element. This allows videos
-     * hosted on various platforms to play correctly without relying on
-     * unsupported formats in the native video element.
-     *
-     * @param {string} src
-     * @returns {HTMLElement}
-     */
     function createVideoElement(src) {
-      // Helper to create iframe with common attributes
       function makeIframe(embedSrc) {
         const iframe = document.createElement('iframe');
         iframe.src = embedSrc;
         iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
         iframe.allowFullscreen = true;
-        // Set attributes to ensure responsiveness
         iframe.setAttribute('frameborder', '0');
         return iframe;
       }
-      // YouTube detection: matches watch, embed or shortened URLs
-      const ytRegex = /(?:youtube\.com\/(?:watch\?.*v=|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{6,11})/;
-      const ytMatch = src.match(ytRegex);
-      if (ytMatch && ytMatch[1]) {
-        const videoId = ytMatch[1];
-        const embedSrc = `https://www.youtube.com/embed/${videoId}`;
-        return makeIframe(embedSrc);
-      }
-      // Vimeo detection: matches vimeo.com/12345678 or player.vimeo.com/video/12345678
-      const vimeoRegex = /vimeo\.com\/(?:video\/)?(\d+)/;
-      const vimeoMatch = src.match(vimeoRegex);
-      if (vimeoMatch && vimeoMatch[1]) {
-        const videoId = vimeoMatch[1];
-        const embedSrc = `https://player.vimeo.com/video/${videoId}`;
-        return makeIframe(embedSrc);
-      }
-      // Bunny.net embed detection: if the URL already points to a Bunny Stream embed
-      // (mediadelivery.net) then we simply embed it via iframe. Bunny Stream embed
-      // URLs typically contain `/embed/` in the path. Treat these like other iframes
-      // rather than as direct MP4 files.
-      if (/mediadelivery\.net\/embed\//.test(src)) {
-        return makeIframe(src);
-      }
-      // If the URL looks like a direct video file (e.g. .mp4, .webm, .ogg, .m3u8),
-      // we use the native <video> tag. Otherwise, fallback to iframe embed for
-      // non‑standard providers (this covers cases like Bunny Stream when given
-      // a player URL without /embed/).
-      const directVideoExt = /\.(mp4|webm|ogg|m3u8)(\?.*)?$/i;
-      if (directVideoExt.test(src) || /(cloudinary\.com|bunnycdn\.ru|bunnycdn\.com|b-cdn\.net)/.test(src)) {
+      const ytMatch = src.match(/(?:youtube\.com\/(?:watch\?.*v=|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{6,11})/);
+      if (ytMatch && ytMatch[1]) return makeIframe(`https://www.youtube.com/embed/${ytMatch[1]}`);
+      const vimeoMatch = src.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+      if (vimeoMatch && vimeoMatch[1]) return makeIframe(`https://player.vimeo.com/video/${vimeoMatch[1]}`);
+      if (/mediadelivery\.net\/embed\//.test(src)) return makeIframe(src);
+      if (/\.(mp4|webm|ogg|m3u8)(\?.*)?$/i.test(src) || /(cloudinary\.com|bunnycdn\.ru|bunnycdn\.com|b-cdn\.net)/.test(src)) {
         const video = document.createElement('video');
         video.controls = true;
         video.src = src;
         video.innerHTML = 'Your browser does not support the video tag.';
         return video;
       }
-      // Default: embed unknown providers via iframe
       return makeIframe(src);
     }
     const playerEl = createVideoElement(url);
+    mainMedia = playerEl;
     media.appendChild(playerEl);
+  } else {
+    const imgEl = document.createElement('img');
+    const defaultImg = (product.thumbnail_url) || (product.gallery_urls && product.gallery_urls[0]) || '';
+    imgEl.src = defaultImg;
+    imgEl.alt = product.title;
+    mainMedia = imgEl;
+    media.appendChild(imgEl);
   }
-  // Thumbnails (assuming multiple thumbnails in future; currently only one)
+  // Thumbnails / slider: build from gallery_urls or thumbnail
   const thumbs = document.createElement('div');
   thumbs.className = 'thumbnails';
-  if (product.thumbnail_url) {
-    const thumbImg = document.createElement('img');
-    thumbImg.src = product.thumbnail_url;
-    thumbImg.alt = product.title;
-    thumbImg.addEventListener('click', () => {
-      // Replace main video with static image if clicked
-      if (product.video_url) return;
-      mainImg.src = product.thumbnail_url;
-    });
-    thumbs.appendChild(thumbImg);
+  let galleryList = [];
+  if (product.gallery_urls && product.gallery_urls.length) {
+    galleryList = product.gallery_urls;
+  } else if (product.thumbnail_url) {
+    galleryList = [product.thumbnail_url];
   }
+  galleryList.forEach((imgUrl) => {
+    const tImg = document.createElement('img');
+    tImg.src = imgUrl;
+    tImg.alt = product.title;
+    tImg.addEventListener('click', () => {
+      if (mainMedia && mainMedia.tagName.toLowerCase() === 'img') {
+        mainMedia.src = imgUrl;
+      }
+    });
+    thumbs.appendChild(tImg);
+  });
   media.appendChild(thumbs);
   // Description
   const desc = document.createElement('div');

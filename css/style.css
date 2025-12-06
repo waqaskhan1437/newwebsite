@@ -100,6 +100,8 @@ main {
   display: flex;
   gap: 0.5rem;
   margin-bottom: 1rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
 }
 .thumbnails img {
   width: 72px;
