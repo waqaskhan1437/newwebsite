@@ -138,12 +138,16 @@
     // the overlay by default with display:none; switching to flex
     // activates the centering defined in whop.css.
     overlay.style.display = 'flex';
-    // Define fallback onComplete handler if none exists
+    // Define fallback onComplete handler if none exists.  When a
+    // purchase finishes, hide the overlay and redirect to the
+    // success page.  This avoids leaving the user on an idle screen.
     if (typeof window.whopCheckoutComplete !== 'function') {
       window.whopCheckoutComplete = function() {
         overlay.style.display = 'none';
-        // In production, you could fetch details from your backend here
-        alert('Purchase completed successfully!');
+        // Redirect the user to our thank you page.  A query
+        // parameter can be appended here if you wish to display
+        // order details.  Leaving it blank shows a generic thank you.
+        window.location.href = '/order-success.html';
       };
     }
     await loadWhopScript();
