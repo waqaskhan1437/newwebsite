@@ -33,8 +33,17 @@
       <h1 id="product-title"></h1>
       <div class="delivery-price" id="delivery-price"></div>
       <div class="digital-note" id="digital-note"></div>
-      <form id="addons-form" class="addons-form"></form>
-      <button id="order-btn" class="btn">Place Order</button>
+      <!-- Customize heading -->
+      <h2 class="customize-heading">Start Customize Your Video</h2>
+      <!-- The customization form begins with an email field followed by dynamic addon fields -->
+      <form id="addons-form" class="addons-form">
+        <div class="addon-group">
+          <label for="email-field">Email <span style="color:red">*</span></label>
+          <input id="email-field" type="email" placeholder="Enter your email" required>
+        </div>
+      </form>
+      <div class="secure-note">100% Secure &amp; Private</div>
+      <button id="order-btn" class="btn">Checkout</button>
     </div>
   </main>
   <script src="js/api.js"></script>
