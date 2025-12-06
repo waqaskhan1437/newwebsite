@@ -1,0 +1,7 @@
+name = "secure-shop-worker"
+main = "worker.js"
+compatibility_date = "2025-12-06"
+
+# Serve static assets from the project root (index.html, css, js, admin) when deployed.
+[site]
+bucket = "."
