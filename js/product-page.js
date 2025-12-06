@@ -58,10 +58,16 @@
     const summary=document.getElementById('summary-line');
     const deliveryBox=document.createElement('div');
     deliveryBox.className='delivery-box';
-    if(product.instant_delivery){deliveryBox.textContent='Instant Delivery In 60 Minutes';}
-    else if(/1\s*day|24\s*hour/i.test(product.normal_delivery_text||'')){deliveryBox.textContent='24 Hours Express Delivery';}
-    else if(/2\s*day|48\s*hour/i.test(product.normal_delivery_text||'')){deliveryBox.textContent='2 Days Delivery';}
-    else{deliveryBox.textContent=product.normal_delivery_text||'';}
+    // Determine first and second lines for delivery and include an icon.  This matches the WishVideo design with a primary
+    // headline and a smaller subtext below it.  If instant delivery is enabled, show 60 minutes / 1 hour; for 1 day
+    // deliveries show 24 hours / 1 day; for 2 day deliveries show 2 days; otherwise fallback to the provided text twice.
+    let d1='', d2='';
+    if(product.instant_delivery){d1='Instant Delivery In 60 Minutes'; d2='1 Hour';}
+    else if(/1\s*day|24\s*hour/i.test(product.normal_delivery_text||'')){d1='24 Hours Express Delivery'; d2='1 Day';}
+    else if(/2\s*day|48\s*hour/i.test(product.normal_delivery_text||'')){d1='2 Days Delivery'; d2='2 Days';}
+    else {d1=product.normal_delivery_text||''; d2=product.normal_delivery_text||'';}
+    // Compose HTML with a rocket icon and two lines of text
+    deliveryBox.innerHTML=`<span class="delivery-icon">🚀</span><div class="delivery-text"><div class="delivery-title">${d1}</div><div class="delivery-sub">${d2}</div></div>`;
     // Price calculations
     const cur=product.sale_price!=null?product.sale_price:product.normal_price;
     const old=product.sale_price!=null?product.normal_price:null;
@@ -93,6 +99,10 @@
     const note=document.getElementById('digital-note');
     // Always show a digital delivery note because products are delivered digitally.
     note.textContent='Digital Delivery: Receive via WhatsApp/Email.';
+    // Set heading for custom form fields (addons) section.  Use a consistent heading so users know this section
+    // contains the optional custom questions and add-ons defined in the admin panel.
+    const addonsHeadingEl=document.getElementById('addons-heading');
+    if(addonsHeadingEl){addonsHeadingEl.textContent='Custom form fields (addons)';}
     // --- Addons form ---
     const form=document.getElementById('addons-form');
     function createInput(item){ let input; switch(item.type){ case 'quantity': input=document.createElement('input'); input.type='number'; input.min='0'; input.value='0'; break; case 'dropdown': input=document.createElement('select'); (item.options||[]).forEach(opt=>{ const optEl=document.createElement('option'); optEl.value=opt.value; optEl.textContent=`${opt.label}${opt.extra?` (+Rs ${opt.extra})`:''}`; input.appendChild(optEl); }); break; case 'checkbox_group': input=document.createElement('div'); (item.options||[]).forEach(opt=>{ const lbl=document.createElement('label'); const cb=document.createElement('input'); cb.type='checkbox'; cb.value=opt.value; lbl.appendChild(cb); lbl.append(` ${opt.label}${opt.extra?` (+Rs ${opt.extra})`:''}`); input.appendChild(lbl); }); break; case 'radio_group': input=document.createElement('div'); (item.options||[]).forEach(opt=>{ const lbl=document.createElement('label'); const rb=document.createElement('input'); rb.type='radio'; rb.name=`addon_${item.id}`; rb.value=opt.value; lbl.appendChild(rb); lbl.append(` ${opt.label}${opt.extra?` (+Rs ${opt.extra})`:''}`); input.appendChild(lbl); }); break; default: input=document.createElement('textarea'); input.placeholder=item.placeholder||''; } return input; }
