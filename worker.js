@@ -24,6 +24,7 @@ import {
 } from './worker/order-routes.js';
 import { handleSecureDownload } from './worker/secure-download.js';
 import { getWhopSettings, saveWhopSettings } from './worker/settings-routes.js';
+import { handleWhopWebhook } from './worker/webhook-routes.js';
 
 export default {
   /**
@@ -98,6 +99,12 @@ export default {
         }
         if (req.method === 'POST' && pathname === '/api/settings/whop') {
           return saveWhopSettings(req, env);
+        }
+
+        // Whop webhook endpoint. This should be configured in your Whop
+        // dashboard as the webhook callback URL. Always handle POST.
+        if (pathname === '/api/whop/webhook') {
+          return handleWhopWebhook(req, env);
         }
         // Secure download
         if (req.method === 'GET' && pathname.startsWith('/download/')) {
