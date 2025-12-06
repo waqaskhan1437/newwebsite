@@ -45,11 +45,18 @@
       updateTotal();
       return;
     }
-    const email = prompt('Enter your email for delivery:');
-    if (!email) {
-      btn.disabled = false;
-      updateTotal();
-      return;
+    // Attempt to capture an email from the addons form.  If an
+    // email field exists and contains a valid email, we will pass
+    // it to the Whop checkout to prefill the address.  Otherwise
+    // we omit the email and allow the Whop UI to collect it.
+    let email = '';
+    const emailInput = document.querySelector('#addons-form input[type="email"]');
+    if (emailInput) {
+      const value = emailInput.value.trim();
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (value && emailPattern.test(value)) {
+        email = value;
+      }
     }
     // Gather selected addons for optional metadata; convert FormData into
     // a list of field/value pairs.  If a file is selected, include
