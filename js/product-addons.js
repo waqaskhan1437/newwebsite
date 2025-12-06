@@ -1,8 +1,3 @@
-/*
- * Advanced but simple-looking product addons builder.
- * Default state: sirf "Add field" button, koi complex cheez visible nahi.
- */
-
 ;(function () {
   const TYPES = [
     { value: '', label: 'Select field type' },
@@ -15,15 +10,7 @@
     { value: 'select', label: 'Dropdown list' },
     { value: 'checkbox_group', label: 'Checkbox group' }
   ];
-
-  function slugify(str, index) {
-    const base = (str || '')
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-    return base || `field_${index}`;
-  }
-
+  function slugify(str,index){const base=(str||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');return base||`field_${index}`;}
   function initAddonsBuilder(form) {
     const builder = form.querySelector('#addons-builder');
     if (!builder) return;
@@ -31,14 +18,11 @@
     const addBtn = builder.querySelector('#add-addon-field');
     const hidden = builder.querySelector('#addons-json');
     if (!list || !addBtn || !hidden) return;
-
     let counter = 1;
-
     addBtn.addEventListener('click', () => {
       list.appendChild(createFieldRow(counter++));
       syncHidden(form);
     });
-
     builder.addEventListener('click', e => {
       if (e.target.matches('.addon-remove-field')) {
         e.target.closest('.addon-field').remove();
@@ -57,18 +41,20 @@
         syncHidden(form);
       }
     });
-
     builder.addEventListener('change', e => {
-      if (e.target.matches('.addon-type')) {
-        const fieldEl = e.target.closest('.addon-field');
+      const target = e.target;
+      if (target.matches('.addon-type')) {
+        const fieldEl = target.closest('.addon-field');
         renderTypeConfig(fieldEl);
-        syncHidden(form);
       }
+      if (target.matches('.addon-opt-file, .addon-opt-qty, .addon-opt-field')) {
+        const row = target.closest('.addon-option-row');
+        updateOptionConfig(row);
+      }
+      syncHidden(form);
     });
-
     builder.addEventListener('input', () => syncHidden(form));
   }
-
   function createFieldRow(index) {
     const wrapper = document.createElement('div');
     wrapper.className = 'addon-field';
@@ -91,7 +77,6 @@
     ].join('\n');
     return wrapper;
   }
-
   function renderTypeConfig(fieldEl) {
     if (!fieldEl) return;
     const type = fieldEl.querySelector('.addon-type')?.value || '';
@@ -99,12 +84,10 @@
     const labelInput = fieldEl.querySelector('.addon-label');
     const title = labelInput && labelInput.value ? labelInput.value : '';
     if (!cfg) return;
-
     if (!type) {
       cfg.innerHTML = '<p class="field-note">Field type select karo, phir yahan uski settings nazar aayengi.</p>';
       return;
     }
-
     if (type === 'heading') {
       cfg.innerHTML = [
         '<div class="form-field">',
@@ -116,7 +99,6 @@
       ].join('\n');
       return;
     }
-
     if (type === 'text' || type === 'textarea' || type === 'email') {
       cfg.innerHTML = [
         '<div class="form-grid-2">',
@@ -139,7 +121,6 @@
       ].join('\n');
       return;
     }
-
     if (type === 'file') {
       cfg.innerHTML = [
         '<div class="form-grid-2">',
@@ -169,7 +150,6 @@
       ].join('\n');
       return;
     }
-
     if (type === 'radio' || type === 'select' || type === 'checkbox_group') {
       cfg.innerHTML = [
         '<p class="field-note">Har option ke saath price, file, quantity aur text field ka toggle hai.</p>',
@@ -183,7 +163,6 @@
       return;
     }
   }
-
   function createOptionRow() {
     const row = document.createElement('div');
     row.className = 'addon-option-row';
@@ -206,11 +185,48 @@
       '  <label><input type="checkbox" class="addon-opt-field"> Text field</label>',
       '  <label><input type="checkbox" class="addon-opt-default"> Default</label>',
       '  <button type="button" class="btn btn-secondary addon-remove-option">Remove</button>',
+      '</div>',
+      '<div class="addon-option-qty-config">',
+      '  <div class="form-grid-2">',
+      '    <div class="form-field">',
+      '      <label>Quantity label',
+      '        <input type="text" class="addon-opt-qty-label" placeholder="e.g. Number of photos">',
+      '      </label>',
+      '    </div>',
+      '    <div class="form-field">',
+      '      <label>Quantity placeholder',
+      '        <input type="text" class="addon-opt-qty-placeholder" placeholder="e.g. 1, 2, 3">',
+      '      </label>',
+      '    </div>',
+      '  </div>',
+      '</div>',
+      '<div class="addon-option-text-config">',
+      '  <div class="form-grid-2">',
+      '    <div class="form-field">',
+      '      <label>Text field label',
+      '        <input type="text" class="addon-opt-text-label" placeholder="Label for text field">',
+      '      </label>',
+      '    </div>',
+      '    <div class="form-field">',
+      '      <label>Text placeholder',
+      '        <input type="text" class="addon-opt-text-placeholder" placeholder="e.g. Enter name">',
+      '      </label>',
+      '    </div>',
+      '  </div>',
       '</div>'
     ].join('\n');
+    updateOptionConfig(row);
     return row;
   }
-
+  function updateOptionConfig(row) {
+    if (!row) return;
+    const hasQty = !!row.querySelector('.addon-opt-qty')?.checked;
+    const hasText = !!row.querySelector('.addon-opt-field')?.checked;
+    const qtyBox = row.querySelector('.addon-option-qty-config');
+    const textBox = row.querySelector('.addon-option-text-config');
+    if (qtyBox) qtyBox.style.display = hasQty ? 'block' : 'none';
+    if (textBox) textBox.style.display = hasText ? 'block' : 'none';
+  }
   function buildConfig(form) {
     const result = [];
     const builder = form.querySelector('#addons-builder');
@@ -223,7 +239,6 @@
       if (!label && type !== 'heading') return;
       const id = slugify(label, idx + 1);
       const field = { id, type, label };
-
       if (type === 'heading') {
         const txt = fieldEl.querySelector('.addon-heading-text')?.value.trim() || label;
         field.text = txt;
@@ -243,43 +258,34 @@
         fieldEl.querySelectorAll('.addon-option-row').forEach(row => {
           const oLabel = row.querySelector('.addon-opt-label')?.value.trim() || '';
           if (!oLabel) return;
+          const qtyLabel = row.querySelector('.addon-opt-qty-label')?.value.trim() || '';
+          const qtyPlaceholder = row.querySelector('.addon-opt-qty-placeholder')?.value.trim() || '';
+          const textLabel = row.querySelector('.addon-opt-text-label')?.value.trim() || '';
+          const textPlaceholder = row.querySelector('.addon-opt-text-placeholder')?.value.trim() || '';
           options.push({
             label: oLabel,
             price: numVal(row.querySelector('.addon-opt-price')?.value),
             file: !!row.querySelector('.addon-opt-file')?.checked,
             quantity: !!row.querySelector('.addon-opt-qty')?.checked,
+            quantityLabel: qtyLabel,
+            quantityPlaceholder: qtyPlaceholder,
             textField: !!row.querySelector('.addon-opt-field')?.checked,
+            textLabel,
+            textPlaceholder,
             default: !!row.querySelector('.addon-opt-default')?.checked
           });
         });
         if (!options.length) return;
         field.options = options;
       }
-
       result.push(field);
     });
     return result;
   }
-
   function syncHidden(form) {
     const hidden = form.querySelector('#addons-json');
     if (!hidden) return;
     const cfg = buildConfig(form);
     hidden.value = cfg.length ? JSON.stringify(cfg) : '';
   }
-
-  function numVal(v) {
-    if (!v) return 0;
-    const n = parseFloat(v);
-    return isNaN(n) ? 0 : n;
-  }
-
-  function escapeAttr(str) {
-    return (str || '').replace(/"/g, '&quot;');
-  }
-
-  window.initAddonsBuilder = initAddonsBuilder;
-  window.readAddonsConfig = function (form) {
-    return buildConfig(form);
-  };
-})();
+  function numVal(v){if(!v)return 0;const n=parseFloat(v);return isNaN(n)?0:n;}  function escapeAttr(str){return (str||'').replace(/"/g,'&quot;');}  window.initAddonsBuilder=initAddonsBuilder;window.readAddonsConfig=function(form){return buildConfig(form);};})();
