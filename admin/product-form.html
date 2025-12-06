@@ -76,6 +76,13 @@
           <input type="text" name="video_url" placeholder="https://example.com/video.mp4">
         </label>
       </fieldset>
+      <fieldset class="field-group" id="addons-builder">
+        <legend>Product addons</legend>
+        <p class="field-note">Yahan se custom fields / options banao jo checkout pe customer se info aur extra price lein.</p>
+        <div id="addons-list"></div>
+        <button type="button" id="add-addon-group" class="btn">Add addon group</button>
+        <input type="hidden" name="addons_json" id="addons-json">
+      </fieldset>
       <fieldset class="field-group">
         <legend>SEO settings</legend>
         <label>SEO meta title
@@ -95,6 +102,7 @@
     </form>
   </main>
   <script src="../js/api.js"></script>
+  <script src="../js/product-addons.js"></script>
   <script src="../js/product-seo.js"></script>
   <script src="../js/product-form.js"></script>
 </body>

@@ -10,6 +10,9 @@
   if (!form) return;
 
   setupGalleryField(form);
+  if (typeof initAddonsBuilder === 'function') {
+    initAddonsBuilder(form);
+  }
 
   if (productId) {
     try {
@@ -40,8 +43,8 @@
 
     const media = readMediaFields(form);
     const seo = typeof readSeoFields === 'function' ? readSeoFields(form) : { meta: {} };
-
-    const payload = { ...base, ...media.meta, ...seo.meta };
+    const addons = typeof readAddonsConfig === 'function' ? readAddonsConfig(form) : [];
+    const payload = { ...base, ...media.meta, ...seo.meta, addons };
 
     console.log('Product payload', payload);
     console.log('Media files (for R2)', media.files);
