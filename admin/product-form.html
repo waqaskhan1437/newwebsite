@@ -76,10 +76,26 @@
           <input type="text" name="video_url" placeholder="https://example.com/video.mp4">
         </label>
       </fieldset>
+      <fieldset class="field-group">
+        <legend>SEO settings</legend>
+        <label>SEO meta title
+          <input type="text" name="seo_title" maxlength="160">
+        </label>
+        <label>SEO meta description
+          <textarea name="seo_description" rows="3" maxlength="320"></textarea>
+        </label>
+        <label>SEO focus keywords
+          <input type="text" name="seo_keywords" placeholder="keyword1, keyword2">
+        </label>
+        <label>Canonical URL (optional)
+          <input type="text" name="seo_canonical" placeholder="https://example.com/product">
+        </label>
+      </fieldset>
       <button type="submit" class="btn">Save</button>
     </form>
   </main>
   <script src="../js/api.js"></script>
+  <script src="../js/product-seo.js"></script>
   <script src="../js/product-form.js"></script>
 </body>
 </html>

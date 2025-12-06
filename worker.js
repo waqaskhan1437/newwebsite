@@ -46,29 +46,24 @@ export default {
         }
         return jsonResponse({ error: 'Not found' }, 404);
       }
-      // Non‑API routes: try to serve static assets (index.html, css, js, admin pages, etc.)
-      return await handleStaticAsset(req, env);
+      return handleStaticAsset(req, env);
     } catch (err) {
       return jsonResponse({ error: err.message || 'Server error' }, 500);
     }
   }
 };
 async function handleStaticAsset(req, env) {
-  // If ASSETS binding is configured (wrangler `assets`), prefer that.
   if (env.ASSETS && typeof env.ASSETS.fetch === 'function') {
     return env.ASSETS.fetch(req);
   }
-  // Fallback to __STATIC_CONTENT KV (when using older [site] projects).
   if (!env.__STATIC_CONTENT) {
-    // No static content bound, just return a simple text response.
     return new Response('Secure Shop Worker Active', { headers: corsHeaders });
   }
   const url = new URL(req.url);
-  let path = url.pathname;
+  let path = url.pathname || '/';
   if (path === '/' || path === '') path = '/index.html';
   if (path.endsWith('/')) path += 'index.html';
-  const key = path.replace(/^\//, ''); // remove leading slash
-  // Try to read asset bytes from KV
+  const key = path.replace(/^\//, '');
   const body = await env.__STATIC_CONTENT.get(key, 'arrayBuffer');
   if (!body) {
     return new Response('Not found', { status: 404, headers: corsHeaders });
@@ -100,7 +95,6 @@ function jsonResponse(data, status = 200) {
 // --- Schema auto‑creation and migrations ---
 async function ensureSchema(env) {
   if (schemaInitialized) return;
-  // Create base tables (split into individual statements for D1 stability)
   await env.DB.prepare(`
     CREATE TABLE IF NOT EXISTS products (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -142,7 +136,6 @@ async function ensureSchema(env) {
       archive_url TEXT
     );
   `).run();
-  // Add missing columns if tables existed from previous versions
   await ensureColumn(env, 'products', 'thumbnail_url', 'TEXT');
   await ensureColumn(env, 'products', 'video_url', 'TEXT');
   await ensureColumn(env, 'products', 'status', "TEXT DEFAULT 'active'");

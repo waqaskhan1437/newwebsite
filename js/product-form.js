@@ -1,6 +1,6 @@
 /*
- * Admin product form logic.  Abhi sirf product info + media form ready kar rahe
- * hain; actual save / R2 upload next step me implement hoga.
+ * Admin product form logic. Product info + media + SEO form ready.
+ * Actual save + R2 upload next step me implement hoga.
  */
 
 ;(async function initProductForm() {
@@ -14,14 +14,20 @@
   if (productId) {
     try {
       const { product } = await getProduct(productId);
-      if (product) populateForm(product);
+      if (product) {
+        populateForm(product);
+        if (typeof populateSeoForm === 'function') {
+          populateSeoForm(form, product);
+        }
+      }
     } catch (e) {
       console.error(e);
     }
   }
 
-  form.addEventListener('submit', async e => {
+  form.addEventListener('submit', e => {
     e.preventDefault();
+
     const base = {
       title: form.title.value.trim(),
       slug: form.slug.value.trim(),
@@ -31,12 +37,15 @@
       instant_delivery: form.instant_delivery.checked ? 1 : 0,
       normal_delivery_text: form.normal_delivery_text.value.trim()
     };
+
     const media = readMediaFields(form);
-    const payload = { ...base, ...media.meta };
+    const seo = typeof readSeoFields === 'function' ? readSeoFields(form) : { meta: {} };
+
+    const payload = { ...base, ...media.meta, ...seo.meta };
 
     console.log('Product payload', payload);
-    console.log('Media files', media.files);
-    alert('Form ready hai, save / upload API next step me banayenge.');
+    console.log('Media files (for R2)', media.files);
+    alert('Form ready hai – next step me save + R2 upload banayenge.');
   });
 })();
 
@@ -49,8 +58,8 @@ function setupGalleryField(form) {
     if (!firstRow) return;
     const clone = firstRow.cloneNode(true);
     clone.querySelectorAll('input').forEach(input => {
+      input.value = '';
       if (input.type === 'file') input.value = '';
-      else input.value = '';
     });
     wrapper.insertBefore(clone, addBtn);
   });
