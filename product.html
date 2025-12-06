@@ -3,14 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Product Detail</title>
+  <!-- The title and meta tags below will be populated dynamically for SEO -->
+  <title id="page-title">Loading…</title>
+  <meta id="meta-description" name="description" content="">
+  <meta id="meta-keywords" name="keywords" content="">
+  <link id="meta-canonical" rel="canonical" href="">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <main>
-    <div id="product-container">Loading…</div>
+  <main id="product-detail" class="product-detail">
+    <!-- Left column: media, gallery, description and reviews -->
+    <div class="media">
+      <div class="player-wrapper">
+        <!-- Video player; hidden when a static image is displayed -->
+        <video id="media-player" controls style="display:none"></video>
+        <img id="media-image" alt="" style="display:none" />
+      </div>
+      <div class="gallery" id="gallery"></div>
+      <section class="description" id="description"></section>
+      <section class="reviews" id="reviews-section">
+        <h3>Reviews</h3>
+        <!-- Reviews will be injected here; for now we show none -->
+        <div id="reviews"></div>
+      </section>
+    </div>
+    <!-- Right column: title, rating, delivery/price, digital note, addons and order button -->
+    <div class="info">
+      <div class="rating-wrapper"><span class="rating-stars">★ ★ ★ ★ ★</span><span id="review-count"></span></div>
+      <h1 id="product-title"></h1>
+      <div class="delivery-price" id="delivery-price"></div>
+      <div class="digital-note" id="digital-note"></div>
+      <form id="addons-form" class="addons-form"></form>
+      <button id="order-btn" class="btn">Place Order</button>
+    </div>
   </main>
   <script src="js/api.js"></script>
-  <script src="js/product.js"></script>
+  <script src="js/product-page.js"></script>
 </body>
 </html>
