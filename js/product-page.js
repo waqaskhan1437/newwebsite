@@ -82,9 +82,8 @@
     if(addons&&addons.length){ addons.forEach(group=>{ const g=document.createElement('div'); g.className='addon-group'; const gl=document.createElement('label'); gl.textContent=group.label||group.groupKey||''; g.appendChild(gl); group.items.forEach(item=>{ const wrapper=document.createElement('div'); wrapper.className='addon-item'; const l=document.createElement('span'); l.textContent=`${item.label}${item.price?` (Rs ${item.price})`:''}`; wrapper.appendChild(l); const inp=createInput(item); wrapper.appendChild(inp); g.appendChild(wrapper); }); form.appendChild(g); }); }
     // --- Order button ---
     document.getElementById('order-btn').addEventListener('click',async()=>{
-      const emailInput=document.getElementById('email-field');
-      const email=emailInput?emailInput.value.trim():'';
-      if(!email){ alert('Please enter your email.'); return; }
+      const emailEl=document.querySelector('#addons-form input[type="email"]');
+      const email=emailEl?emailEl.value.trim():'';
       try{
         await createOrder({email:email,amount:cur,productId:product.id,addons:[]});
         window.location.href='order-success.html';
