@@ -212,7 +212,9 @@ main {
 .price-card .discount { margin-top: 0.3rem; background-color: #a78bfa; color: #fff; font-size: 0.7rem; padding: 0.15rem 0.45rem; border-radius: 4px; }
 .digital-note { background-color: #ecfdf5; color: #064e3b; border: 1px solid #a7f3d0; margin-top: 0.5rem; margin-bottom: 1rem; }
 /* Customize heading and secure note */
-.customize-btn { background-color: #4f46e5; color: #fff; text-align: center; padding: 0.8rem 1rem; border-radius: 6px; font-weight: 600; margin-top: 1rem; margin-bottom: 0.75rem; cursor: default; }
+.customize-btn { background-color: #4f46e5; color: #fff; text-align: center; padding: 0.8rem 1rem; border-radius: 6px; font-weight: 600; margin-bottom: 0.75rem; cursor: default; }
+/* Card around customization form replicating the Wishvideo design */
+.customize-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 1rem; margin-top: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 .secure-note { font-size: 0.85rem; color: #6b7280; margin-top: 0.5rem; text-align: center; }
 @media (max-width: 768px) {
   .product-detail { grid-template-columns: 1fr; }
