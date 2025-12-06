@@ -21,6 +21,7 @@ import {
   uploadEncryptedFileToArchive
 } from './worker/order-routes.js';
 import { handleSecureDownload } from './worker/secure-download.js';
+import { getWhopSettings, saveWhopSettings } from './worker/settings-routes.js';
 
 export default {
   /**
@@ -79,6 +80,14 @@ export default {
         if (req.method === 'GET' && pathname.startsWith('/api/reviews/')) {
           const id = pathname.split('/').pop();
           return getReviews(env, id);
+        }
+
+        // Whop settings routes
+        if (req.method === 'GET' && pathname === '/api/settings/whop') {
+          return getWhopSettings(env);
+        }
+        if (req.method === 'POST' && pathname === '/api/settings/whop') {
+          return saveWhopSettings(req, env);
         }
         // Secure download
         if (req.method === 'GET' && pathname.startsWith('/download/')) {

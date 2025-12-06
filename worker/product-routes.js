@@ -114,7 +114,10 @@ export async function saveProduct(req, env) {
     seo_title: body.seo_title || '',
     seo_description: body.seo_description || '',
     seo_keywords: body.seo_keywords || '',
-    seo_canonical: body.seo_canonical || ''
+    seo_canonical: body.seo_canonical || '',
+    // Whop integration fields (optional)
+    whop_plan: body.whop_plan || '',
+    whop_price_map: body.whop_price_map || ''
   };
   const fields = Object.keys(data);
   if (body.id) {

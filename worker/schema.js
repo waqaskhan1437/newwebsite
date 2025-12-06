@@ -84,6 +84,17 @@ export async function ensureSchema(env) {
   await ensureColumn(env, 'products', 'seo_title', 'TEXT');
   await ensureColumn(env, 'orders', 'archive_url', 'TEXT');
 
+  // Whop integration: optional fields for plan IDs and price maps.
+  await ensureColumn(env, 'products', 'whop_plan', 'TEXT');
+  await ensureColumn(env, 'products', 'whop_price_map', 'TEXT');
+
+  // Settings table stores global configuration such as Whop defaults.  The
+  // table is keyed by a string `key` and stores a JSON string in `value`.
+  await env.DB.prepare(`CREATE TABLE IF NOT EXISTS settings (
+    key TEXT PRIMARY KEY,
+    value TEXT
+  );`).run();
+
   schemaInitialized = true;
 }
 

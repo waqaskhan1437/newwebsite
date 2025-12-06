@@ -77,3 +77,36 @@ window.getProducts = getProducts;
 window.getProduct = getProduct;
 window.createOrder = createOrder;
 window.saveArchiveLink = saveArchiveLink;
+
+/**
+ * Fetch Whop settings from the backend.  Returns an object
+ * containing a `settings` key.  This helper wraps a GET request
+ * to `/api/settings/whop` and hides implementation details.
+ */
+function getWhopSettings() {
+  return apiFetch('/api/settings/whop');
+}
+
+/**
+ * Persist Whop settings to the backend.  Accepts a plain
+ * object with arbitrary fields; they will be JSON serialised
+ * and stored under a single row in the settings table.  The
+ * backend returns `{ success: true }` on success or an error
+ * object on failure.
+ *
+ * @param {object} data The settings object to save
+ * @returns {Promise<any>} Parsed JSON response
+ */
+function saveWhopSettings(data) {
+  return apiFetch('/api/settings/whop', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  });
+}
+
+// Expose Whop settings helpers.  This allows admin pages to call
+// getWhopSettings() and saveWhopSettings() without bundling this
+// module.  Keeping the number of exported names minimal helps
+// avoid polluting the global namespace.
+window.getWhopSettings = getWhopSettings;
+window.saveWhopSettings = saveWhopSettings;

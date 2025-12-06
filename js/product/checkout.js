@@ -51,34 +51,44 @@
       updateTotal();
       return;
     }
-    try {
-      const selectedAddons = [];
-      const formEl = document.getElementById('addons-form');
-      if (formEl) {
-        const formData = new FormData(formEl);
-        for (const pair of formData.entries()) {
-          const key = pair[0];
-          const val = pair[1];
-          if (!val || (val instanceof File && val.size === 0)) continue;
-          let displayVal = val;
-          if (val instanceof File) displayVal = 'File: ' + val.name;
-          selectedAddons.push({ field: key, value: displayVal });
-        }
+    // Gather selected addons for optional metadata; convert FormData into
+    // a list of field/value pairs.  If a file is selected, include
+    // its name only.  Metadata is passed through to the Whop
+    // checkout to aid order reconciliation on your backend.
+    const selectedAddons = [];
+    const formEl = document.getElementById('addons-form');
+    if (formEl) {
+      const formData = new FormData(formEl);
+      for (const pair of formData.entries()) {
+        const key = pair[0];
+        const val = pair[1];
+        if (!val || (val instanceof File && val.size === 0)) continue;
+        let displayVal = val;
+        if (val instanceof File) displayVal = 'File: ' + val.name;
+        selectedAddons.push({ field: key, value: displayVal });
       }
-      const res = await createOrder({
-        email: email,
-        amount: window.currentTotal,
-        productId: window.productData.id,
-        addons: selectedAddons
-      });
-      if (res.success) {
-        window.location.href = 'order-success.html?orderId=' + res.orderId;
-      }
-    } catch (e) {
-      alert('Error: ' + e.message);
-      btn.disabled = false;
-      updateTotal();
     }
+    // Open the Whop checkout modal.  Use global/product settings to
+    // determine the appropriate plan based on the total amount.  Pass
+    // along metadata so that post‑purchase processing can reattach
+    // selected addons and product identification.
+    if (typeof window.whopCheckout === 'function') {
+      window.whopCheckout({
+        amount: window.currentTotal,
+        email: email,
+        metadata: {
+          productId: window.productData.id,
+          addons: selectedAddons
+        },
+        productPlan: window.productData.whop_plan || '',
+        productPriceMap: window.productData.whop_price_map || ''
+      });
+    } else {
+      alert('Whop checkout is not available. Please contact support.');
+    }
+    // Re‑enable the button and reset the label in case the modal is closed
+    btn.disabled = false;
+    updateTotal();
   }
   window.updateTotal = updateTotal;
   window.handleCheckout = handleCheckout;

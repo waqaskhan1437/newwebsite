@@ -99,7 +99,10 @@ function collectBase(form){
     normal_price: parseFloat(form.normal_price.value) || 0,
     sale_price: form.sale_price.value ? parseFloat(form.sale_price.value) : null,
     instant_delivery: form.instant_delivery.checked ? 1 : 0,
-    normal_delivery_text: form.normal_delivery_text.value.trim()
+    normal_delivery_text: form.normal_delivery_text.value.trim(),
+    // Whop integration fields (optional)
+    whop_plan: form.whop_plan ? form.whop_plan.value.trim() : '',
+    whop_price_map: form.whop_price_map ? form.whop_price_map.value.trim() : ''
   };
 }
 
@@ -138,6 +141,9 @@ function fillBaseFields(form, product){
   form.normal_delivery_text.value = product.normal_delivery_text || '';
   if(product.thumbnail_url) form.thumbnail_url.value = product.thumbnail_url;
   if(product.video_url) form.video_url.value = product.video_url;
+  // Populate Whop fields
+  if (form.whop_plan && product.whop_plan) form.whop_plan.value = product.whop_plan;
+  if (form.whop_price_map && product.whop_price_map) form.whop_price_map.value = product.whop_price_map;
 }
 
 function fillDemoProduct(form){

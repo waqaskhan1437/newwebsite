@@ -11,6 +11,15 @@
   window.currentTotal = 0;
   window.productData = null;
   async function initProductPage() {
+    // Load global Whop settings early so checkout can use them.  The
+    // settings include theme, default plan ID and price map.
+    try {
+      const whopResp = await (typeof window.getWhopSettings === 'function' ? window.getWhopSettings() : Promise.resolve(null));
+      window.whopSettings = whopResp && whopResp.settings ? whopResp.settings : {};
+    } catch (e) {
+      console.warn('Unable to load Whop settings:', e);
+      window.whopSettings = {};
+    }
     const params = new URLSearchParams(location.search);
     const productId = params.get('id');
     const container = document.getElementById('product-container');

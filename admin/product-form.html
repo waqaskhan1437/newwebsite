@@ -127,6 +127,20 @@
           </fieldset>
         </section>
 
+        <!-- Whop Integration Settings -->
+        <section class="card-section">
+          <h2 class="section-title">Whop Settings (Optional)</h2>
+          <fieldset class="field-group">
+            <label>Whop Plan ID
+              <input type="text" name="whop_plan" placeholder="plan_XXXXXXXXX">
+            </label>
+            <label>Whop Price Map (Amount|PlanID)
+              <textarea name="whop_price_map" rows="2" placeholder="e.g. 5|plan_abc123,10|plan_def456"></textarea>
+            </label>
+            <p class="field-note">Specify either a default plan ID or map amounts to plan IDs. Use commas to separate entries.</p>
+          </fieldset>
+        </section>
+
         <div class="form-actions">
           <button type="submit" class="btn">Save Product</button>
         </div>

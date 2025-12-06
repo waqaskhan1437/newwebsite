@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Whop Settings</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="admin-page">
+  <div class="admin-shell">
+    <header class="admin-header">
+      <h1>Whop Settings</h1>
+      <p class="admin-subtitle">Configure global Whop checkout options.</p>
+    </header>
+    <main>
+      <form id="whop-settings-form" class="admin-form">
+        <section class="card-section">
+          <h2 class="section-title">Global Whop Configuration</h2>
+          <fieldset class="field-group">
+            <label>Theme
+              <select name="theme" id="whop-theme">
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+              </select>
+            </label>
+            <label>Default Plan ID
+              <input type="text" name="default_plan_id" id="whop-default-plan" placeholder="plan_XXXXXXXXX">
+            </label>
+            <label>Price Map (Amount|PlanID)
+              <textarea name="price_map" id="whop-price-map" rows="3" placeholder="5|plan_abc123,10|plan_def456"></textarea>
+            </label>
+            <p class="field-note">Enter one or more mappings of amount to plan ID separated by commas. The default plan ID will be used if no mapping matches.</p>
+
+            <label>API Key
+              <input type="text" name="api_key" id="whop-api-key" placeholder="whop_sk_...">
+            </label>
+            <p class="field-note">Used for server‑side API requests and membership lookups.</p>
+
+            <label>Webhook Secret
+              <input type="text" name="webhook_secret" id="whop-webhook-secret" placeholder="whop_webhook_...">
+            </label>
+            <p class="field-note">Secret to verify Whop webhooks. Leave blank if not using webhooks.</p>
+          </fieldset>
+        </section>
+        <div class="form-actions">
+          <button type="submit" class="btn">Save Settings</button>
+        </div>
+      </form>
+    </main>
+  </div>
+  <script src="../js/api.js"></script>
+  <script src="../js/admin/whop-settings.js"></script>
+</body>
+</html>
