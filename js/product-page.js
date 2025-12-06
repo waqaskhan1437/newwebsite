@@ -73,9 +73,26 @@
       const discount=Math.round(((old-cur)/old)*100);if(discount>0){const dis=document.createElement('span');dis.className='discount';dis.textContent=`${discount}% OFF`;priceCard.appendChild(dis);} }
     summary.appendChild(deliveryBox);
     summary.appendChild(priceCard);
+
+    // --- Structured data for SEO ---
+    /*
+     * Create JSON-LD structured data so that search engines can index
+     * the product name, description, image, price and reviews.  This
+     * microdata follows the schema.org Product specification and is
+     * injected into the head as a script tag.  Including this data
+     * helps Google extract rich snippets for the product.  The
+     * aggregate rating uses reviewCount from the product and a
+     * default ratingValue if none is provided.
+     */
+    try{
+      const ratingVal=product.rating||5;
+      const structured={"@context":"http://schema.org","@type":"Product","name":product.title||'',"image":product.thumbnail_url||'',"description":cleanDesc,"offers":{"@type":"Offer","priceCurrency":"PKR","price":cur||0,"availability":"http://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":ratingVal,"reviewCount":count}};
+      const sdEl=document.createElement('script');sdEl.type='application/ld+json';sdEl.text=JSON.stringify(structured);document.head.appendChild(sdEl);
+    }catch(e){console.warn('Structured data error',e);}
     // Digital note
     const note=document.getElementById('digital-note');
-    note.textContent=product.instant_delivery?'Digital Delivery: Receive via WhatsApp/Email.':'';
+    // Always show a digital delivery note because products are delivered digitally.
+    note.textContent='Digital Delivery: Receive via WhatsApp/Email.';
     // --- Addons form ---
     const form=document.getElementById('addons-form');
     function createInput(item){ let input; switch(item.type){ case 'quantity': input=document.createElement('input'); input.type='number'; input.min='0'; input.value='0'; break; case 'dropdown': input=document.createElement('select'); (item.options||[]).forEach(opt=>{ const optEl=document.createElement('option'); optEl.value=opt.value; optEl.textContent=`${opt.label}${opt.extra?` (+Rs ${opt.extra})`:''}`; input.appendChild(optEl); }); break; case 'checkbox_group': input=document.createElement('div'); (item.options||[]).forEach(opt=>{ const lbl=document.createElement('label'); const cb=document.createElement('input'); cb.type='checkbox'; cb.value=opt.value; lbl.appendChild(cb); lbl.append(` ${opt.label}${opt.extra?` (+Rs ${opt.extra})`:''}`); input.appendChild(lbl); }); break; case 'radio_group': input=document.createElement('div'); (item.options||[]).forEach(opt=>{ const lbl=document.createElement('label'); const rb=document.createElement('input'); rb.type='radio'; rb.name=`addon_${item.id}`; rb.value=opt.value; lbl.appendChild(rb); lbl.append(` ${opt.label}${opt.extra?` (+Rs ${opt.extra})`:''}`); input.appendChild(lbl); }); break; default: input=document.createElement('textarea'); input.placeholder=item.placeholder||''; } return input; }
