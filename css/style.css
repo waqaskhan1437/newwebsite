@@ -1,7 +1,3 @@
-/*
- * Minimal CSS to provide a clean layout for the product pages and admin.
- * Keep styles simple and reusable.  Feel free to extend as needed.
- */
 body {
   margin: 0;
   padding: 1rem;
@@ -21,7 +17,6 @@ main {
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
-/* Product list cards */
 .product-card {
   background: #fafafa;
   border: 1px solid #e5e5e5;
@@ -56,7 +51,6 @@ main {
   color: #0070f3;
   font-weight: 500;
 }
-/* Two-column layout for product detail */
 .product-page {
   display: grid;
   grid-template-columns: 2fr 1fr;
@@ -120,7 +114,6 @@ main {
   border: 1px solid #ccc;
   margin-bottom: 0.5rem;
 }
-/* Admin list table */
 .admin-table {
   width: 100%;
   border-collapse: collapse;
@@ -136,7 +129,6 @@ main {
   background: #f5f5f5;
   font-weight: 600;
 }
-/* Buttons */
 .btn {
   display: inline-block;
   padding: 0.5rem 1rem;
@@ -151,137 +143,35 @@ main {
 .btn:hover {
   background: #0059c4;
 }
-/* Admin product form layout */
-body.admin-page {
-  padding: 2rem 1rem;
-  background-color: #e5ecf5;
-}
-body.admin-page main {
-  max-width: 100%;
-  margin: 0;
-  background: transparent;
-  padding: 0;
-  box-shadow: none;
-}
-.admin-shell {
-  max-width: 1120px;
-  margin: 0 auto;
-}
-.admin-header {
-  margin-bottom: 1.5rem;
-}
-.admin-header h1 {
-  font-size: 1.6rem;
-  margin-bottom: 0.25rem;
-}
-.admin-subtitle {
-  margin: 0;
-  color: #6b7280;
-  font-size: 0.9rem;
-}
-.admin-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-.card-section {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 1.25rem 1.5rem;
-  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
-}
-.section-title {
-  margin: 0 0 0.75rem 0;
-  font-size: 1.05rem;
-  border-bottom: 1px solid #e5e7eb;
-  padding-bottom: 0.4rem;
-}
-.form-grid-2 {
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-  gap: 1rem 1.25rem;
-}
-.form-field label {
-  display: block;
-  font-weight: 500;
-}
-.form-field-inline label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 500;
-}
-.admin-form input[type="text"],
-.admin-form input[type="number"],
-.admin-form input[type="email"],
-.admin-form textarea,
-.admin-form select {
-  width: 100%;
-  padding: 0.55rem 0.6rem;
-  border-radius: 6px;
-  border: 1px solid #d1d5db;
-  margin-top: 0.25rem;
-  font: inherit;
-  box-sizing: border-box;
-}
-.admin-form textarea {
-  min-height: 70px;
-  resize: vertical;
-}
-.field-group {
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
-  padding: 0.9rem 1rem 1rem;
-  margin-bottom: 1rem;
-  background: #f9fafb;
-}
-.field-group legend {
-  font-weight: 600;
-  padding: 0 0.25rem;
-}
-.field-note {
-  display: inline-block;
-  font-size: 0.8rem;
-  color: #6b7280;
-  margin-bottom: 0.25rem;
-}
-.gallery-row {
-  display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 0.8fr);
-  gap: 0.75rem;
-  align-items: center;
-}
-.form-actions {
-  text-align: right;
-}
-.btn-secondary {
-  background: #6b7280;
-}
-.btn-secondary:hover {
-  background: #4b5563;
-}
-@media (max-width: 768px) {
-  body.admin-page {
-    padding: 1rem;
-  }
-  .card-section {
-    padding: 1rem 1rem 1.1rem;
-  }
-  .form-grid-2,
-  .gallery-row {
-    grid-template-columns: 1fr;
-  }
-}
-/* Addons builder layout */
-.addon-field{margin-bottom:1rem;padding:0.85rem 1rem;border-radius:10px;border:1px solid #e5e7eb;background:#f3f4f6;}
-.addon-row-header{display:flex;align-items:flex-end;justify-content:space-between;gap:0.75rem;}
-.addon-row-main{display:flex;flex-wrap:wrap;gap:0.75rem;flex:1;}
-.addon-row-main label{flex:1 1 220px;}
-.addon-row-config{margin-top:0.6rem;}
-.addon-options{margin-top:0.4rem;}
-.addon-option-row{margin-top:0.75rem;padding-top:0.75rem;border-top:1px dashed #d1d5db;display:flex;flex-direction:column;gap:0.4rem;}
-.addon-option-flags{display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center;}
-.addon-option-flags label{font-size:0.85rem;font-weight:500;}
-.addon-option-flags .btn{margin-left:auto;}
-.addon-option-config{margin-left:0.25rem;}
-@media (max-width:768px){.addon-row-header{align-items:stretch;}.addon-row-main{flex-direction:column;}.addon-option-flags .btn{margin-left:0;}}
+body.admin-page{padding:2rem 1rem;background:#e5ecf5}
+body.admin-page main{max-width:100%;margin:0;background:transparent;padding:0;box-shadow:none}
+.admin-shell{max-width:1120px;margin:0 auto}
+.admin-header{margin-bottom:1.5rem}
+.admin-header h1{font-size:1.6rem;margin-bottom:0.25rem}
+.admin-subtitle{margin:0;color:#6b7280;font-size:.9rem}
+.admin-form{display:flex;flex-direction:column;gap:1.5rem}
+.card-section{background:#fff;border-radius:12px;padding:1.25rem 1.5rem;box-shadow:0 10px 25px rgba(15,23,42,.06)}
+.section-title{margin:0 0 .75rem 0;font-size:1.05rem;border-bottom:1px solid #e5e7eb;padding-bottom:.4rem}
+.form-grid-2{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:1rem 1.25rem}
+.form-field label{display:block;font-weight:500}
+.form-field-inline label{display:flex;align-items:center;gap:.5rem;font-weight:500}
+.admin-form input[type=text],.admin-form input[type=number],.admin-form input[type=email],.admin-form textarea,.admin-form select{width:100%;padding:.55rem .6rem;border-radius:6px;border:1px solid #d1d5db;margin-top:.25rem;font:inherit;box-sizing:border-box}
+.admin-form textarea{min-height:70px;resize:vertical}
+.field-group{border-radius:10px;border:1px solid #e5e7eb;padding:.9rem 1rem 1rem;margin-bottom:1rem;background:#f9fafb}
+.field-group legend{font-weight:600;padding:0 .25rem}
+.field-note{display:inline-block;font-size:.8rem;color:#6b7280;margin-bottom:.25rem}
+.gallery-row{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,.8fr);gap:.75rem;align-items:center}
+.addon-field{border-radius:8px;border:1px solid #e5e7eb;padding:.75rem .9rem;margin-bottom:.75rem;background:#f9fafb}
+.addon-row-header{display:flex;justify-content:space-between;gap:.5rem;align-items:center;margin-bottom:.6rem}
+.addon-row-main{display:flex;flex-wrap:wrap;gap:.75rem}
+.addon-label-wrap{min-width:220px}
+.addon-row-config{margin-top:.25rem}
+.addon-option-row{padding:.55rem .7rem;border-radius:6px;border:1px solid #e5e7eb;margin-bottom:.5rem;background:#fff}
+.addon-option-flags{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem .75rem;margin-top:.35rem}
+.addon-option-flags label{font-size:.8rem;font-weight:500}
+.addon-option-config{margin-top:.5rem;padding-top:.4rem;border-top:1px dashed #e5e7eb}
+.addon-option-config .form-grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.form-actions{text-align:right}
+.btn-secondary{background:#6b7280}
+.btn-secondary:hover{background:#4b5563}
+@media (max-width:768px){body.admin-page{padding:1rem}.card-section{padding:1rem 1rem 1.1rem}.form-grid-2,.gallery-row{grid-template-columns:1fr}}

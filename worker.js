@@ -1,101 +1,62 @@
+/*
+ * Cloudflare Worker backend for the shop.  This single file handles
+ * database schema creation, product APIs, encrypted order storage,
+ * encrypted file uploads to archive.org and secure proxy downloads.
+ * All helpers are defined inline and the entire file stays under 300
+ * lines for readability and maintainability.
+ */
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type'
 };
 let schemaInitialized = false;
+
 export default {
   async fetch(req, env, ctx) {
     if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
-    const url = new URL(req.url);
-    const { pathname } = url;
-    const isApiRoute =
-      pathname === '/api/health' ||
-      pathname === '/api/products' ||
-      pathname.startsWith('/api/product/') ||
-      pathname === '/api/order/create' ||
-      pathname === '/submit-order' ||
-      pathname === '/api/order/archive-link' ||
-      pathname === '/api/order/upload-encrypted-file' ||
-      pathname.startsWith('/download/');
+    const { pathname, searchParams } = new URL(req.url);
     try {
-      if (isApiRoute) {
-        if (!env.DB) throw new Error('D1 binding "DB" missing');
-        await ensureSchema(env);
-        if (req.method === 'GET' && pathname === '/api/health') {
-          return jsonResponse({ ok: true });
-        }
-        if (req.method === 'GET' && pathname === '/api/products') {
-          return listProducts(env);
-        }
-        if (req.method === 'GET' && pathname.startsWith('/api/product/')) {
-          const id = pathname.split('/').pop();
-          return getProduct(env, id);
-        }
-        if (req.method === 'POST' && (pathname === '/api/order/create' || pathname === '/submit-order')) {
-          return saveEncryptedOrder(req, env);
-        }
-        if (req.method === 'POST' && pathname === '/api/order/archive-link') {
-          return saveArchiveLink(req, env);
-        }
-        if (req.method === 'POST' && pathname === '/api/order/upload-encrypted-file') {
-          return uploadEncryptedFileToArchive(req, env);
-        }
-        if (req.method === 'GET' && pathname.startsWith('/download/')) {
-          return handleSecureDownload(pathname, env);
-        }
-        return jsonResponse({ error: 'Not found' }, 404);
+      await ensureSchema(env);
+      // API routes
+      if (req.method === 'GET' && pathname === '/api/health') return jsonResponse({ ok: true });
+      if (req.method === 'GET' && pathname === '/api/products') return listProducts(env);
+      if (req.method === 'GET' && pathname.startsWith('/api/product/')) {
+        const id = pathname.split('/').pop();
+        return getProduct(env, id);
       }
-      return handleStaticAsset(req, env);
+      if (req.method === 'POST' && (pathname === '/api/order/create' || pathname === '/submit-order')) {
+        return saveEncryptedOrder(req, env);
+      }
+      if (req.method === 'POST' && pathname === '/api/order/archive-link') {
+        return saveArchiveLink(req, env);
+      }
+      if (req.method === 'POST' && pathname === '/api/order/upload-encrypted-file') {
+        return uploadEncryptedFileToArchive(req, env);
+      }
+      if (req.method === 'GET' && pathname.startsWith('/download/')) {
+        return handleSecureDownload(pathname, env);
+      }
+      return new Response('Secure Shop Worker Active', { headers: corsHeaders });
     } catch (err) {
       return jsonResponse({ error: err.message || 'Server error' }, 500);
     }
   }
 };
-async function handleStaticAsset(req, env) {
-  if (env.ASSETS && typeof env.ASSETS.fetch === 'function') {
-    return env.ASSETS.fetch(req);
-  }
-  if (!env.__STATIC_CONTENT) {
-    return new Response('Secure Shop Worker Active', { headers: corsHeaders });
-  }
-  const url = new URL(req.url);
-  let path = url.pathname || '/';
-  if (path === '/' || path === '') path = '/index.html';
-  if (path.endsWith('/')) path += 'index.html';
-  const key = path.replace(/^\//, '');
-  const body = await env.__STATIC_CONTENT.get(key, 'arrayBuffer');
-  if (!body) {
-    return new Response('Not found', { status: 404, headers: corsHeaders });
-  }
-  const ext = key.split('.').pop().toLowerCase();
-  const types = {
-    html: 'text/html; charset=UTF-8',
-    js: 'application/javascript',
-    css: 'text/css',
-    json: 'application/json',
-    png: 'image/png',
-    jpg: 'image/jpeg',
-    jpeg: 'image/jpeg',
-    svg: 'image/svg+xml',
-    ico: 'image/x-icon'
-  };
-  const contentType = types[ext] || 'application/octet-stream';
-  return new Response(body, {
-    status: 200,
-    headers: { ...corsHeaders, 'Content-Type': contentType }
-  });
-}
+
 function jsonResponse(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
     headers: { ...corsHeaders, 'Content-Type': 'application/json' }
   });
 }
+
 // --- Schema auto‑creation and migrations ---
 async function ensureSchema(env) {
   if (schemaInitialized) return;
-  await env.DB.prepare(`
+  // Create base tables
+  await env.DB.exec(`
     CREATE TABLE IF NOT EXISTS products (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       title TEXT,
@@ -110,8 +71,6 @@ async function ensureSchema(env) {
       status TEXT DEFAULT 'active',
       sort_order INTEGER DEFAULT 0
     );
-  `).run();
-  await env.DB.prepare(`
     CREATE TABLE IF NOT EXISTS product_addons (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       product_id INTEGER,
@@ -125,8 +84,6 @@ async function ensureSchema(env) {
       group_order INTEGER DEFAULT 0,
       item_order INTEGER DEFAULT 0
     );
-  `).run();
-  await env.DB.prepare(`
     CREATE TABLE IF NOT EXISTS orders (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       order_id TEXT UNIQUE,
@@ -135,7 +92,8 @@ async function ensureSchema(env) {
       iv TEXT,
       archive_url TEXT
     );
-  `).run();
+  `);
+  // Add missing columns if tables existed from previous versions
   await ensureColumn(env, 'products', 'thumbnail_url', 'TEXT');
   await ensureColumn(env, 'products', 'video_url', 'TEXT');
   await ensureColumn(env, 'products', 'status', "TEXT DEFAULT 'active'");
@@ -146,13 +104,13 @@ async function ensureSchema(env) {
   await ensureColumn(env, 'orders', 'archive_url', 'TEXT');
   schemaInitialized = true;
 }
+
 async function ensureColumn(env, table, column, definition) {
   const info = await env.DB.prepare(`PRAGMA table_info(${table});`).all();
   const exists = (info.results || []).some(col => col.name === column);
-  if (!exists) {
-    await env.DB.prepare(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition};`).run();
-  }
+  if (!exists) await env.DB.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition};`);
 }
+
 // --- Product APIs ---
 async function listProducts(env) {
   const res = await env.DB.prepare(
@@ -160,6 +118,7 @@ async function listProducts(env) {
   ).all();
   return jsonResponse({ products: res.results || [] });
 }
+
 async function getProduct(env, id) {
   if (!id) return jsonResponse({ error: 'Missing product id' }, 400);
   const product = await env.DB.prepare(
@@ -179,6 +138,7 @@ async function getProduct(env, id) {
   }, {});
   return jsonResponse({ product, addons: Object.values(grouped) });
 }
+
 // --- Order APIs ---
 async function saveEncryptedOrder(req, env) {
   if (!env.SECRET_KEY) throw new Error('SECRET_KEY missing');
@@ -193,6 +153,7 @@ async function saveEncryptedOrder(req, env) {
   ).bind(orderId, productId, encrypted, iv).run();
   return jsonResponse({ success: true, orderId });
 }
+
 async function saveArchiveLink(req, env) {
   const body = await req.json();
   const { orderId, archiveUrl } = body;
@@ -200,6 +161,7 @@ async function saveArchiveLink(req, env) {
   await env.DB.prepare(`UPDATE orders SET archive_url = ? WHERE order_id = ?`).bind(archiveUrl, orderId).run();
   return jsonResponse({ success: true });
 }
+
 async function uploadEncryptedFileToArchive(req, env) {
   if (!env.SECRET_KEY) throw new Error('SECRET_KEY missing');
   if (!env.ARCHIVE_ACCESS_KEY || !env.ARCHIVE_SECRET_KEY) throw new Error('archive keys missing');
@@ -219,6 +181,7 @@ async function uploadEncryptedFileToArchive(req, env) {
   await env.DB.prepare(`UPDATE orders SET archive_url = ? WHERE order_id = ?`).bind(publicUrl, orderId).run();
   return jsonResponse({ success: true, archiveUrl: publicUrl });
 }
+
 // --- Secure download and decryption ---
 async function handleSecureDownload(pathname, env) {
   if (!env.SECRET_KEY) throw new Error('SECRET_KEY missing');
@@ -231,12 +194,14 @@ async function handleSecureDownload(pathname, env) {
   const decBuffer = await decryptBytesWithIvPrefix(encBuffer, env.SECRET_KEY);
   return new Response(decBuffer, { status: 200, headers: { ...corsHeaders, 'Content-Type': 'video/mp4', 'Content-Disposition': 'attachment; filename="secure-video.mp4"' } });
 }
+
 // --- Crypto helpers ---
 async function deriveAesKey(password) {
   const enc = new TextEncoder();
   const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
   return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: enc.encode('universal-salt'), iterations: 100000, hash: 'SHA-256' }, keyMaterial, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
 }
+
 async function encryptData(text, password) {
   const enc = new TextEncoder();
   const key = await deriveAesKey(password);
@@ -244,6 +209,7 @@ async function encryptData(text, password) {
   const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(text));
   return { encrypted: btoa(String.fromCharCode(...new Uint8Array(ct))), iv: btoa(String.fromCharCode(...iv)) };
 }
+
 async function decryptData(encryptedBase64, ivBase64, password) {
   const enc = new TextEncoder();
   const key = await deriveAesKey(password);
@@ -252,6 +218,7 @@ async function decryptData(encryptedBase64, ivBase64, password) {
   const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, encrypted);
   return JSON.parse(new TextDecoder().decode(plain));
 }
+
 async function encryptBytesWithIvPrefix(buf, password) {
   const key = await deriveAesKey(password);
   const iv = crypto.getRandomValues(new Uint8Array(12));
@@ -262,6 +229,7 @@ async function encryptBytesWithIvPrefix(buf, password) {
   out.set(encBytes, iv.length);
   return out.buffer;
 }
+
 async function decryptBytesWithIvPrefix(buf, password) {
   const key = await deriveAesKey(password);
   const all = new Uint8Array(buf);
