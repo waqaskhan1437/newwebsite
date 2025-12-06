@@ -43,17 +43,39 @@
           <input type="text" name="normal_delivery_text">
         </label>
       </div>
-      <div>
-        <label>Thumbnail URL
-          <input type="text" name="thumbnail_url">
+      <fieldset class="field-group">
+        <legend>Thumbnail image</legend>
+        <label>Upload image
+          <input type="file" name="thumbnail_file" accept="image/*">
         </label>
-      </div>
-      <div>
-        <label>Video URL
-          <input type="text" name="video_url">
+        <span class="field-note">ya image URL</span>
+        <label>
+          <input type="text" name="thumbnail_url" placeholder="https://example.com/thumb.jpg">
         </label>
-      </div>
-      <!-- Addons and other advanced fields can go here later -->
+      </fieldset>
+      <fieldset class="field-group" id="gallery-wrapper">
+        <legend>Gallery images</legend>
+        <div class="gallery-row">
+          <label>Upload image
+            <input type="file" name="gallery_files[]" accept="image/*">
+          </label>
+          <span class="field-note">ya image URL</span>
+          <label>
+            <input type="text" name="gallery_urls[]" placeholder="https://example.com/image.jpg">
+          </label>
+        </div>
+        <button type="button" id="add-gallery-image" class="btn">Add more images</button>
+      </fieldset>
+      <fieldset class="field-group">
+        <legend>Product video</legend>
+        <label>Upload video
+          <input type="file" name="video_file" accept="video/*">
+        </label>
+        <span class="field-note">ya video URL</span>
+        <label>
+          <input type="text" name="video_url" placeholder="https://example.com/video.mp4">
+        </label>
+      </fieldset>
       <button type="submit" class="btn">Save</button>
     </form>
   </main>
