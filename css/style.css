@@ -42,7 +42,8 @@ main { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem 4rem; }
 /* Top Row: Media (Left) + Info (Right) */
 .product-main-row {
   display: grid;
-  grid-template-columns: 6fr 4fr; /* 60% Left, 40% Right */
+  /* Adjust column ratio to 55% (media) and 45% (info) as requested */
+  grid-template-columns: 55% 45%; /* 55% Left, 45% Right */
   gap: 2.5rem;
   align-items: start;
 }
