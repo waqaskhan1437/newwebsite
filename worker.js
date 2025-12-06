@@ -16,34 +16,110 @@ let schemaInitialized = false;
 export default {
   async fetch(req, env, ctx) {
     if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
-    const { pathname, searchParams } = new URL(req.url);
+
+    const url = new URL(req.url);
+    const { pathname } = url;
+
+    const isApiRoute =
+      pathname === '/api/health' ||
+      pathname === '/api/products' ||
+      pathname.startsWith('/api/product/') ||
+      pathname === '/api/order/create' ||
+      pathname === '/submit-order' ||
+      pathname === '/api/order/archive-link' ||
+      pathname === '/api/order/upload-encrypted-file' ||
+      pathname.startsWith('/download/');
+
     try {
-      await ensureSchema(env);
-      // API routes
-      if (req.method === 'GET' && pathname === '/api/health') return jsonResponse({ ok: true });
-      if (req.method === 'GET' && pathname === '/api/products') return listProducts(env);
-      if (req.method === 'GET' && pathname.startsWith('/api/product/')) {
-        const id = pathname.split('/').pop();
-        return getProduct(env, id);
+      if (isApiRoute) {
+        await ensureSchema(env);
+
+        if (req.method === 'GET' && pathname === '/api/health') {
+          return jsonResponse({ ok: true });
+        }
+
+        if (req.method === 'GET' && pathname === '/api/products') {
+          return listProducts(env);
+        }
+
+        if (req.method === 'GET' && pathname.startsWith('/api/product/')) {
+          const id = pathname.split('/').pop();
+          return getProduct(env, id);
+        }
+
+        if (req.method === 'POST' && (pathname === '/api/order/create' || pathname === '/submit-order')) {
+          return saveEncryptedOrder(req, env);
+        }
+
+        if (req.method === 'POST' && pathname === '/api/order/archive-link') {
+          return saveArchiveLink(req, env);
+        }
+
+        if (req.method === 'POST' && pathname === '/api/order/upload-encrypted-file') {
+          return uploadEncryptedFileToArchive(req, env);
+        }
+
+        if (req.method === 'GET' && pathname.startsWith('/download/')) {
+          return handleSecureDownload(pathname, env);
+        }
+
+        return jsonResponse({ error: 'Not found' }, 404);
       }
-      if (req.method === 'POST' && (pathname === '/api/order/create' || pathname === '/submit-order')) {
-        return saveEncryptedOrder(req, env);
-      }
-      if (req.method === 'POST' && pathname === '/api/order/archive-link') {
-        return saveArchiveLink(req, env);
-      }
-      if (req.method === 'POST' && pathname === '/api/order/upload-encrypted-file') {
-        return uploadEncryptedFileToArchive(req, env);
-      }
-      if (req.method === 'GET' && pathname.startsWith('/download/')) {
-        return handleSecureDownload(pathname, env);
-      }
-      return new Response('Secure Shop Worker Active', { headers: corsHeaders });
+
+      // Non‑API routes: try to serve static assets (index.html, css, js, admin pages, etc.)
+      return await handleStaticAsset(req, env);
     } catch (err) {
       return jsonResponse({ error: err.message || 'Server error' }, 500);
     }
   }
 };
+
+async function handleStaticAsset(req, env) {
+  // If ASSETS binding is configured (wrangler `assets`), prefer that.
+  if (env.ASSETS && typeof env.ASSETS.fetch === 'function') {
+    return env.ASSETS.fetch(req);
+  }
+
+  // Fallback to __STATIC_CONTENT KV (when using older [site] projects).
+  if (!env.__STATIC_CONTENT) {
+    // No static content bound, just return a simple text response.
+    return new Response('Secure Shop Worker Active', { headers: corsHeaders });
+  }
+
+  const url = new URL(req.url);
+  let path = url.pathname;
+
+  if (path === '/' || path === '') path = '/index.html';
+  if (path.endsWith('/')) path += 'index.html';
+
+  const key = path.replace(/^\//, ''); // remove leading slash
+
+  // Try to read asset bytes from KV
+  const body = await env.__STATIC_CONTENT.get(key, 'arrayBuffer');
+  if (!body) {
+    return new Response('Not found', { status: 404, headers: corsHeaders });
+  }
+
+  const ext = key.split('.').pop().toLowerCase();
+  const types = {
+    html: 'text/html; charset=UTF-8',
+    js: 'application/javascript',
+    css: 'text/css',
+    json: 'application/json',
+    png: 'image/png',
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+    svg: 'image/svg+xml',
+    ico: 'image/x-icon'
+  };
+
+  const contentType = types[ext] || 'application/octet-stream';
+
+  return new Response(body, {
+    status: 200,
+    headers: { ...corsHeaders, 'Content-Type': contentType }
+  });
+}
 
 function jsonResponse(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -55,8 +131,9 @@ function jsonResponse(data, status = 200) {
 // --- Schema auto‑creation and migrations ---
 async function ensureSchema(env) {
   if (schemaInitialized) return;
-  // Create base tables
-  await env.DB.exec(`
+
+  // Create base tables (split into individual statements for D1 stability)
+  await env.DB.prepare(`
     CREATE TABLE IF NOT EXISTS products (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       title TEXT,
@@ -71,6 +148,9 @@ async function ensureSchema(env) {
       status TEXT DEFAULT 'active',
       sort_order INTEGER DEFAULT 0
     );
+  `).run();
+
+  await env.DB.prepare(`
     CREATE TABLE IF NOT EXISTS product_addons (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       product_id INTEGER,
@@ -84,6 +164,9 @@ async function ensureSchema(env) {
       group_order INTEGER DEFAULT 0,
       item_order INTEGER DEFAULT 0
     );
+  `).run();
+
+  await env.DB.prepare(`
     CREATE TABLE IF NOT EXISTS orders (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       order_id TEXT UNIQUE,
@@ -92,7 +175,8 @@ async function ensureSchema(env) {
       iv TEXT,
       archive_url TEXT
     );
-  `);
+  `).run();
+
   // Add missing columns if tables existed from previous versions
   await ensureColumn(env, 'products', 'thumbnail_url', 'TEXT');
   await ensureColumn(env, 'products', 'video_url', 'TEXT');
@@ -102,13 +186,16 @@ async function ensureSchema(env) {
   await ensureColumn(env, 'product_addons', 'item_order', 'INTEGER DEFAULT 0');
   await ensureColumn(env, 'orders', 'product_id', 'INTEGER');
   await ensureColumn(env, 'orders', 'archive_url', 'TEXT');
+
   schemaInitialized = true;
 }
 
 async function ensureColumn(env, table, column, definition) {
   const info = await env.DB.prepare(`PRAGMA table_info(${table});`).all();
   const exists = (info.results || []).some(col => col.name === column);
-  if (!exists) await env.DB.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition};`);
+  if (!exists) {
+    await env.DB.prepare(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition};`).run();
+  }
 }
 
 // --- Product APIs ---
