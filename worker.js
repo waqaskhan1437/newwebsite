@@ -143,8 +143,15 @@ async function getProduct(env, id) {
   if (row.addons_json) {
     try { addons = JSON.parse(row.addons_json); } catch (_) {}
   }
+  const statsRow = await env.DB.prepare(
+    `SELECT COUNT(*) AS order_count FROM orders WHERE product_id = ?`
+  ).bind(id).first();
+  let order_count = 0;
+  if (statsRow && statsRow.order_count !== undefined && statsRow.order_count !== null) {
+    order_count = Number(statsRow.order_count) || 0;
+  }
   const { addons_json, ...product } = row;
-  return jsonResponse({ product: { ...product, addons } });
+  return jsonResponse({ product: { ...product, addons, order_count } });
 }
 async function saveProduct(req, env) {
   const body = await req.json().catch(() => null);
