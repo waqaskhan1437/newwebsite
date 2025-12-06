@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin – Product Form</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <main>
+    <h1>Product Form</h1>
+    <form id="product-form">
+      <div>
+        <label>Title
+          <input type="text" name="title" required>
+        </label>
+      </div>
+      <div>
+        <label>Slug
+          <input type="text" name="slug">
+        </label>
+      </div>
+      <div>
+        <label>Description
+          <textarea name="description"></textarea>
+        </label>
+      </div>
+      <div>
+        <label>Normal Price
+          <input type="number" name="normal_price" step="0.01">
+        </label>
+      </div>
+      <div>
+        <label>Sale Price
+          <input type="number" name="sale_price" step="0.01">
+        </label>
+      </div>
+      <div>
+        <label><input type="checkbox" name="instant_delivery"> Instant Delivery</label>
+      </div>
+      <div>
+        <label>Normal Delivery Text
+          <input type="text" name="normal_delivery_text">
+        </label>
+      </div>
+      <div>
+        <label>Thumbnail URL
+          <input type="text" name="thumbnail_url">
+        </label>
+      </div>
+      <div>
+        <label>Video URL
+          <input type="text" name="video_url">
+        </label>
+      </div>
+      <!-- Addons and other advanced fields can go here later -->
+      <button type="submit" class="btn">Save</button>
+    </form>
+  </main>
+  <script src="../js/api.js"></script>
+  <script src="../js/product-form.js"></script>
+</body>
+</html>

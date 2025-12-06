@@ -1,0 +1,179 @@
+/*
+ * Minimal CSS to provide a clean layout for the product pages and admin.
+ * Keep styles simple and reusable.  Feel free to extend as needed.
+ */
+
+body {
+  margin: 0;
+  padding: 1rem;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.4;
+  background-color: #f7f7f7;
+}
+
+h1, h2, h3 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+main {
+  max-width: 960px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Product list cards */
+.product-card {
+  background: #fafafa;
+  border: 1px solid #e5e5e5;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+}
+
+.product-card:hover {
+  background-color: #f0f0f0;
+}
+
+.product-card img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  margin-right: 1rem;
+  border-radius: 4px;
+}
+
+.product-card .info {
+  flex: 1;
+}
+
+.product-card .title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.product-card .price {
+  color: #0070f3;
+  font-weight: 500;
+}
+
+/* Two-column layout for product detail */
+.product-page {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  grid-gap: 2rem;
+}
+
+.product-media {
+  display: flex;
+  flex-direction: column;
+}
+
+.product-media video,
+.product-media img {
+  max-width: 100%;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+.thumbnails {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.thumbnails img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid #e5e5e5;
+}
+
+.product-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.product-info .price-line {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  margin: 0.5rem 0;
+}
+
+.product-info .price-line .price {
+  color: #0070f3;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.product-info .addons {
+  margin-top: 1rem;
+}
+
+.addon-group {
+  margin-bottom: 1rem;
+}
+
+.addon-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.addon-group select,
+.addon-group input[type="number"],
+.addon-group textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  margin-bottom: 0.5rem;
+}
+
+/* Admin list table */
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 0.5rem;
+  border-bottom: 1px solid #e5e5e5;
+  text-align: left;
+}
+
+.admin-table th {
+  background: #f5f5f5;
+  font-weight: 600;
+}
+
+/* Buttons */
+.btn {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  background: #0070f3;
+  color: #fff;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  border: none;
+}
+
+.btn:hover {
+  background: #0059c4;
+}
