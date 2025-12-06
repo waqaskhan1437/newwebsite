@@ -1,1 +1,210 @@
-;(async function(){const pms=new URLSearchParams(location.search);const id=pms.get('id');const media=document.getElementById('product-media');const summary=document.getElementById('product-summary');const note=document.getElementById('product-note');const desc=document.getElementById('product-description');const rev=document.getElementById('product-reviews');const addonsWrap=document.getElementById('addons-fields-front');const form=document.getElementById('order-form');if(!media||!summary||!note||!desc||!rev||!addonsWrap||!form)return;if(!id){media.innerHTML='<p>Product ID missing.</p>';return;}try{const{product}=await getProduct(id);if(!product){media.innerHTML='<p>Product not found.</p>';return;}const addons=Array.isArray(product.addons)?product.addons:(product.addons_json?JSON.parse(product.addons_json):[]);renderMedia(media,product);renderSummary(summary,product);renderNote(note);renderDescription(desc,product);renderReviews(rev,product);renderAddons(addonsWrap,form,addons);applySeo(product);hookSubmit(form,product,addons);}catch(e){media.innerHTML='<p>Failed to load product.</p>';console.error(e);}})();function renderMedia(el,p){el.innerHTML='';const main=document.createElement('div');main.className='product-player';let node;if(p.video_url){const v=document.createElement('video');v.controls=true;v.src=p.video_url;if(p.thumbnail_url)v.poster=p.thumbnail_url;node=v;}else if(p.thumbnail_url){const img=new Image();img.src=p.thumbnail_url;img.alt=p.title||'Product image';node=img;}else{const box=document.createElement('div');box.style.padding='3rem 1rem';box.style.textAlign='center';box.textContent='Media coming soon.';node=box;}main.appendChild(node);el.appendChild(main);const thumbs=document.createElement('div');thumbs.className='product-thumbs';const urls=[];if(p.thumbnail_url)urls.push(p.thumbnail_url);if(Array.isArray(p.gallery_urls))urls.push(...p.gallery_urls);urls.forEach((url,idx)=>{const b=document.createElement('button');b.type='button';b.className='product-thumb'+(idx===0?' product-thumb--active':'');const img=new Image();img.src=url;img.alt='Thumbnail';b.appendChild(img);b.addEventListener('click',()=>{const active=thumbs.querySelector('.product-thumb--active');if(active)active.classList.remove('product-thumb--active');b.classList.add('product-thumb--active');if(node.tagName==='VIDEO')node.poster=url;else if(node.tagName==='IMG')node.src=url;});thumbs.appendChild(b);});if(urls.length)el.appendChild(thumbs);const meta=document.createElement('div');meta.className='product-media-meta';const h1=document.createElement('h1');h1.textContent=p.title||'Product';meta.appendChild(h1);if(p.short_description||p.description){const pe=document.createElement('p');pe.textContent=p.short_description||stripHtml(p.description).slice(0,160);meta.appendChild(pe);}el.appendChild(meta);}function renderSummary(el,p){el.innerHTML='';const rating=p.rating||5.0;const count=p.review_count||1;const r=document.createElement('div');r.className='product-rating';r.innerHTML='<span>★ '+rating.toFixed(1)+'</span><span>('+(count||0)+' review'+(count===1?'':'s')+')</span>';el.appendChild(r);const t=document.createElement('h2');t.className='product-title';t.textContent=p.title||'Product';el.appendChild(t);const row=document.createElement('div');row.className='product-summary-row';const d=document.createElement('div');d.className='delivery-pill';const lbl=computeDeliveryLabel(p);d.innerHTML='<small>Delivery</small><div>'+escapeHtml(lbl)+'</div>';row.appendChild(d);const pb=document.createElement('div');pb.className='price-pill';const base=p.sale_price||p.normal_price||0;const normal=p.normal_price&&p.sale_price?p.normal_price:null;const disc=normal?Math.round((1-base/normal)*100):null;const main=document.createElement('div');main.className='price-main';main.textContent=formatPrice(base,p.currency);pb.appendChild(main);const m=document.createElement('div');m.className='price-meta';m.innerHTML=(normal?'<span>'+formatPrice(normal,p.currency)+'</span>':'')+(disc?disc+'% OFF':'');pb.appendChild(m);row.appendChild(pb);el.appendChild(row);}function renderNote(el){el.innerHTML='';const w=document.createElement('div');w.className='product-note';w.innerHTML='<span class="product-note-icon">📩</span><span>Digital delivery: aapka video email ya WhatsApp par securely bheja jayega.</span>';el.appendChild(w);}function renderDescription(el,p){el.innerHTML='';const h=document.createElement('h3');h.textContent='About this product';const b=document.createElement('div');b.className='product-desc-body';b.innerHTML=p.description||'No description yet.';el.appendChild(h);el.appendChild(b);}function renderReviews(el,p){el.innerHTML='';const h=document.createElement('h3');h.textContent='Reviews';const b=document.createElement('p');const c=p.review_count||0;b.textContent=c?('Customer reviews backend coming soon ('+c+' stored).'):'Reviews feature coming soon – pehle orders complete karein.';el.appendChild(h);el.appendChild(b);}function renderAddons(wrap,form,addons){wrap.innerHTML='';if(!addons||!addons.length){wrap.innerHTML='<p class="product-desc-body">Is product k liye extra customization required nahi.</p>';return;}const byId={};addons.forEach(f=>{if(f&&f.id)byId[f.id]=f;});window.__addonsById=byId;addons.forEach(field=>{if(!field||!field.type)return;const id=field.id||field.label;if(field.type==='heading'){const h=document.createElement('div');h.className='addon-field-front';h.innerHTML='<strong>'+escapeHtml(field.text||field.label)+'</strong>';wrap.appendChild(h);return;}if(field.type==='text'||field.type==='email'||field.type==='textarea'){const div=document.createElement('div');div.className='addon-field-front';const lab=document.createElement('label');const sp=document.createElement('span');sp.textContent=field.label;lab.appendChild(sp);const inp=field.type==='textarea'?document.createElement('textarea'):document.createElement('input');inp.name='addon_'+id;inp.type=field.type==='email'?'email':'text';if(field.placeholder)inp.placeholder=field.placeholder;if(field.required)inp.required=true;lab.appendChild(inp);if(field.price){const sm=document.createElement('small');sm.textContent='+ '+formatPrice(field.price);lab.appendChild(sm);}div.appendChild(lab);wrap.appendChild(div);return;}if(field.type==='radio'||field.type==='select'||field.type==='checkbox_group'){const fs=document.createElement('fieldset');fs.className='addon-group-front';const lg=document.createElement('legend');lg.textContent=field.label;fs.appendChild(lg);const opts=document.createElement('div');opts.className='addon-options-front';const options=Array.isArray(field.options)?field.options:[];if(field.type==='select'){const sel=document.createElement('select');sel.name='addon_'+id;const ph=document.createElement('option');ph.value='';ph.textContent='Select an option';sel.appendChild(ph);options.forEach((opt,idx)=>{const o=document.createElement('option');o.value=idx;o.textContent=opt.label+(opt.price?(' (+ '+formatPrice(opt.price)+')'):'');if(opt.default)o.selected=true;sel.appendChild(o);});opts.appendChild(sel);}else{options.forEach((opt,idx)=>{const row=document.createElement('label');row.className='addon-option-front';const main=document.createElement('span');main.className='addon-option-main';const input=document.createElement('input');input.type=field.type==='radio'?'radio':'checkbox';input.name='addon_'+id;input.value=idx;if(opt.default&&field.type==='radio')input.checked=true;main.appendChild(input);const txt=document.createElement('span');txt.textContent=opt.label;main.appendChild(txt);row.appendChild(main);if(opt.price){const pr=document.createElement('span');pr.className='addon-option-price';pr.textContent='+ '+formatPrice(opt.price);row.appendChild(pr);}opts.appendChild(row);});}const extra=document.createElement('div');extra.className='addon-extras';extra.dataset.extra=id;fs.appendChild(opts);fs.appendChild(extra);wrap.appendChild(fs);}});form.addEventListener('change',e=>{const t=e.target;if(!t.name||!t.name.startsWith('addon_'))return;const id=t.name.replace('addon_','');const field=window.__addonsById[id];if(!field||!Array.isArray(field.options))return;const idx=getSelectedIndex(form,id,field.type);if(idx===-1)return;const opt=field.options[idx];const extra=wrap.querySelector('[data-extra="'+id+'"]');if(extra)renderExtras(extra,id,opt);});}function renderExtras(el,id,opt){el.innerHTML='';if(opt.file){const count=opt.fileQuantity||1;const lab=document.createElement('label');lab.textContent='Upload file'+(count>1?'s':'');el.appendChild(lab);for(let i=0;i<count;i++){const inp=document.createElement('input');inp.type='file';inp.name='addon_'+id+'_file_'+(i+1);el.appendChild(inp);}}if(opt.quantity){const l=document.createElement('label');l.textContent=opt.quantityLabel||'Quantity';const n=document.createElement('input');n.type='number';n.name='addon_'+id+'_qty';if(opt.quantityPlaceholder)n.placeholder=opt.quantityPlaceholder;l.appendChild(n);el.appendChild(l);}if(opt.textField){const l=document.createElement('label');l.textContent=opt.textLabel||'Details';const t=document.createElement('input');t.type='text';t.name='addon_'+id+'_text';if(opt.textPlaceholder)t.placeholder=opt.textPlaceholder;l.appendChild(t);el.appendChild(l);}}function hookSubmit(form,p,addons){form.addEventListener('submit',e=>{e.preventDefault();const fd=new FormData(form);const data={};fd.forEach((v,k)=>{data[k]=v;});console.log('Order submit demo',{productId:p.id,addonsConfig:addons,form:data});alert('Order form ready hai. Backend integration next step hai.');});}function computeDeliveryLabel(p){if(p.instant_delivery)return'Instant Delivery In 60 Minutes';const t=(p.normal_delivery_text||'').toLowerCase();if(/1\s*day/.test(t)||/24/.test(t))return'24 Hours Express Delivery';if(/2\s*day/.test(t)||/48/.test(t))return'2 Days Delivery';return p.normal_delivery_text||'Standard delivery';}function applySeo(p){const title=p.seo_title||p.title||'Product – Secure Shop';const desc=p.seo_description||stripHtml(p.description||'').slice(0,160);document.title=title;const metaDesc=document.querySelector('meta[name="description"]');if(metaDesc)metaDesc.setAttribute('content',desc);const ogTitle=document.querySelector('meta[property="og:title"]');const ogDesc=document.querySelector('meta[property="og:description"]');const ogImg=document.querySelector('meta[property="og:image"]');if(ogTitle)ogTitle.setAttribute('content',title);if(ogDesc)ogDesc.setAttribute('content',desc);if(ogImg&&p.thumbnail_url)ogImg.setAttribute('content',p.thumbnail_url);const ld=document.getElementById('product-ldjson');if(ld){const data={"@context":"https://schema.org","@type":"Product",name:title,description:desc,image:p.thumbnail_url?[p.thumbnail_url]:[],offers:{"@type":"Offer",price:(p.sale_price||p.normal_price||0),priceCurrency:p.currency||'PKR',availability:"https://schema.org/InStock"}};ld.textContent=JSON.stringify(data);}}function stripHtml(html){const tmp=document.createElement('div');tmp.innerHTML=html||'';return tmp.textContent||tmp.innerText||'';}function escapeHtml(str){return(str||'').replace(/[&<>\"]/g,s=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[s]||s));}function formatPrice(amount,currency){const n=Number(amount||0);const cur=currency||'PKR';return(cur==='USD'?'$':'Rs ')+n.toLocaleString('en-US',{maximumFractionDigits:0});}function getSelectedIndex(form,id,type){if(type==='select'){const sel=form.querySelector('select[name="addon_'+""+""+'"+id+'"]');if(!sel)return-1;const idx=sel.selectedIndex-1;return idx>=0?idx:-1;}const inputs=form.querySelectorAll('input[name="addon_'+""+""+'"+id+'"]');let index=-1;inputs.forEach((el,i)=>{if((el.type==='radio'&&el.checked)||(el.type==='checkbox'&&el.checked&&!~index))index=i;});return index;}
+/*
+ * Logic for the individual product page (product.html).
+ * Loads product details by ID from the URL query string, renders a
+ * two‑column layout with media on the left and info on the right,
+ * and allows the customer to choose addons and submit an order.
+ */
+
+;(async function initProductPage() {
+  const params = new URLSearchParams(location.search);
+  const productId = params.get('id');
+  const pageContainer = document.getElementById('product-container');
+  if (!pageContainer) return;
+  if (!productId) {
+    pageContainer.innerHTML = '<p>Product ID missing.</p>';
+    return;
+  }
+  try {
+    const { product, addons } = await getProduct(productId);
+    if (!product) {
+      pageContainer.innerHTML = '<p>Product not found.</p>';
+      return;
+    }
+    renderProduct(pageContainer, product, addons);
+  } catch (err) {
+    console.error(err);
+    pageContainer.innerHTML = `<p>Error loading product: ${err.message}</p>`;
+  }
+})();
+
+/**
+ * Render the product detail layout into the given container element.
+ *
+ * @param {HTMLElement} el
+ * @param {object} product
+ * @param {Array<object>} addonGroups
+ */
+function renderProduct(el, product, addonGroups) {
+  // Build the structure: left media column, right info column
+  const wrapper = document.createElement('div');
+  wrapper.className = 'product-page';
+
+  // Left: media (video + thumbnails + description + reviews placeholder)
+  const media = document.createElement('div');
+  media.className = 'product-media';
+  // Video or placeholder
+  if (product.video_url) {
+    const video = document.createElement('video');
+    video.controls = true;
+    video.src = product.video_url;
+    video.innerHTML = 'Your browser does not support the video tag.';
+    media.appendChild(video);
+  }
+  // Thumbnails (assuming multiple thumbnails in future; currently only one)
+  const thumbs = document.createElement('div');
+  thumbs.className = 'thumbnails';
+  if (product.thumbnail_url) {
+    const thumbImg = document.createElement('img');
+    thumbImg.src = product.thumbnail_url;
+    thumbImg.alt = product.title;
+    thumbImg.addEventListener('click', () => {
+      // Replace main video with static image if clicked
+      if (product.video_url) return;
+      mainImg.src = product.thumbnail_url;
+    });
+    thumbs.appendChild(thumbImg);
+  }
+  media.appendChild(thumbs);
+  // Description
+  const desc = document.createElement('div');
+  desc.innerHTML = product.description || '';
+  media.appendChild(desc);
+  // Reviews placeholder
+  const reviews = document.createElement('div');
+  reviews.innerHTML = '<h3>Reviews</h3><p>Reviews coming soon.</p>';
+  media.appendChild(reviews);
+
+  // Right: info
+  const info = document.createElement('div');
+  info.className = 'product-info';
+  const title = document.createElement('h2');
+  title.textContent = product.title;
+  info.appendChild(title);
+  // Price line
+  const priceLine = document.createElement('div');
+  priceLine.className = 'price-line';
+  const priceLabel = document.createElement('div');
+  priceLabel.className = 'price';
+  const priceVal = product.sale_price ?? product.normal_price;
+  priceLabel.textContent = priceVal ? `Rs ${priceVal}` : '';
+  priceLine.appendChild(priceLabel);
+  // Delivery time placeholder
+  const deliveryTime = document.createElement('div');
+  deliveryTime.textContent = product.instant_delivery ? 'Instant delivery' : 'Normal delivery';
+  priceLine.appendChild(deliveryTime);
+  info.appendChild(priceLine);
+  // Digital note
+  const note = document.createElement('div');
+  note.textContent = product.instant_delivery ? 'This product will be delivered instantly.' : (product.normal_delivery_text || '');
+  info.appendChild(note);
+  // Addons
+  const addonsContainer = document.createElement('div');
+  addonsContainer.className = 'addons';
+  if (addonGroups && addonGroups.length > 0) {
+    const h3 = document.createElement('h3');
+    h3.textContent = 'Add‑ons';
+    addonsContainer.appendChild(h3);
+    addonGroups.forEach(group => {
+      const groupDiv = document.createElement('div');
+      groupDiv.className = 'addon-group';
+      const groupLabel = document.createElement('label');
+      groupLabel.textContent = group.label || group.groupKey;
+      groupDiv.appendChild(groupLabel);
+      // Render items within group depending on type
+      group.items.forEach(item => {
+        // Each item gets its own wrapper
+        const itemWrapper = document.createElement('div');
+        itemWrapper.style.marginBottom = '0.5rem';
+        const itemLabel = document.createElement('span');
+        itemLabel.textContent = `${item.label} (Rs ${item.price})`;
+        itemLabel.style.display = 'block';
+        itemWrapper.appendChild(itemLabel);
+        // Determine input type
+        let input;
+        switch (item.type) {
+          case 'quantity':
+            input = document.createElement('input');
+            input.type = 'number';
+            input.min = '0';
+            input.value = '0';
+            break;
+          case 'dropdown':
+            input = document.createElement('select');
+            if (item.options) {
+              item.options.forEach(opt => {
+                const optEl = document.createElement('option');
+                optEl.value = opt.value;
+                optEl.textContent = `${opt.label} (+Rs ${opt.extra || 0})`;
+                input.appendChild(optEl);
+              });
+            }
+            break;
+          case 'checkbox_group':
+            input = document.createElement('div');
+            if (item.options) {
+              item.options.forEach(opt => {
+                const lbl = document.createElement('label');
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.value = opt.value;
+                lbl.appendChild(cb);
+                lbl.append(` ${opt.label} (+Rs ${opt.extra || 0})`);
+                input.appendChild(lbl);
+              });
+            }
+            break;
+          case 'radio_group':
+            input = document.createElement('div');
+            if (item.options) {
+              item.options.forEach(opt => {
+                const lbl = document.createElement('label');
+                const rb = document.createElement('input');
+                rb.type = 'radio';
+                rb.name = `addon_${item.id}`;
+                rb.value = opt.value;
+                lbl.appendChild(rb);
+                lbl.append(` ${opt.label} (+Rs ${opt.extra || 0})`);
+                input.appendChild(lbl);
+              });
+            }
+            break;
+          default:
+            // textarea for long text or unknown type
+            input = document.createElement('textarea');
+            input.placeholder = item.placeholder || '';
+            break;
+        }
+        if (input) itemWrapper.appendChild(input);
+        groupDiv.appendChild(itemWrapper);
+      });
+      addonsContainer.appendChild(groupDiv);
+    });
+  }
+  info.appendChild(addonsContainer);
+  // Order button
+  const btn = document.createElement('button');
+  btn.className = 'btn';
+  btn.textContent = 'Buy Now';
+  btn.addEventListener('click', async () => {
+    try {
+      // For simplicity we only pass productId; real implementation should
+      // gather addon selections and price calculations.
+      const response = await createOrder({
+        email: prompt('Enter your email:'),
+        amount: priceVal,
+        productId: product.id,
+        addons: []
+      });
+      alert('Order created: ' + response.orderId);
+    } catch (e) {
+      alert('Error creating order: ' + e.message);
+    }
+  });
+  info.appendChild(btn);
+
+  // Append columns to wrapper
+  wrapper.appendChild(media);
+  wrapper.appendChild(info);
+  el.innerHTML = '';
+  el.appendChild(wrapper);
+}
