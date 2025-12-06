@@ -203,6 +203,14 @@ main {
 }
 .addon-item div > label { display: flex; align-items: center; gap: 0.3rem; margin-bottom: 0.3rem; }
 .btn { width: 100%; margin-top: 1rem; font-size: 1.1rem; }
+/* New summary line styling replicating Wishvideo design */
+.summary-line { display: flex; flex-wrap: wrap; gap: 1rem; margin: 0.8rem 0; }
+.delivery-box { background-color: #10b981; color: #fff; padding: 0.6rem 1.2rem; border-radius: 8px; font-size: 1rem; font-weight: 600; }
+.price-card { background-color: #7c3aed; color: #fff; padding: 0.6rem 1.2rem; border-radius: 8px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; }
+.price-card .current { font-size: 2rem; font-weight: 700; line-height: 1.2; }
+.price-card .old { font-size: 0.9rem; text-decoration: line-through; opacity: 0.8; }
+.price-card .discount { margin-top: 0.3rem; background-color: #a78bfa; color: #fff; font-size: 0.7rem; padding: 0.15rem 0.45rem; border-radius: 4px; }
+.digital-note { background-color: #ecfdf5; color: #064e3b; border: 1px solid #a7f3d0; margin-top: 0.5rem; margin-bottom: 1rem; }
 /* Customize heading and secure note */
 .customize-heading { font-size: 1.3rem; margin: 1rem 0 0.5rem; }
 .secure-note { font-size: 0.85rem; color: #6b7280; margin-top: 0.5rem; text-align: center; }

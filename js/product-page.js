@@ -54,27 +54,25 @@
     reviewWrap.textContent=count?'' : 'No reviews yet.';
     // --- Right: info panel ---
     document.getElementById('product-title').textContent=product.title||'';
-    // Delivery badge and price
-    const deliveryPrice=document.getElementById('delivery-price');
-    const badge=document.createElement('div');
-    const priceBox=document.createElement('div');
-    badge.className='delivery-badge';
-    priceBox.className='price-box';
-    let badgeType='';
-    if(product.instant_delivery){badgeType='instant';badge.textContent='Instant Delivery In 60 Minutes';}
-    else if(/1\s*day|24\s*hour/i.test(product.normal_delivery_text||'')){badgeType='express';badge.textContent='24 Hours Express Delivery';}
-    else if(/2\s*day|48\s*hour/i.test(product.normal_delivery_text||'')){badgeType='days';badge.textContent='2 Days Delivery';}
-    else{badgeType='other';badge.textContent=product.normal_delivery_text||'';}
-    badge.classList.add(badgeType);
+    // Summary line: delivery box and price card
+    const summary=document.getElementById('summary-line');
+    const deliveryBox=document.createElement('div');
+    deliveryBox.className='delivery-box';
+    if(product.instant_delivery){deliveryBox.textContent='Instant Delivery In 60 Minutes';}
+    else if(/1\s*day|24\s*hour/i.test(product.normal_delivery_text||'')){deliveryBox.textContent='24 Hours Express Delivery';}
+    else if(/2\s*day|48\s*hour/i.test(product.normal_delivery_text||'')){deliveryBox.textContent='2 Days Delivery';}
+    else{deliveryBox.textContent=product.normal_delivery_text||'';}
     // Price calculations
     const cur=product.sale_price!=null?product.sale_price:product.normal_price;
     const old=product.sale_price!=null?product.normal_price:null;
-    const curEl=document.createElement('span');curEl.className='price-current';curEl.textContent=cur?`Rs ${cur}`:'';
-    priceBox.appendChild(curEl);
-    if(old){const oldEl=document.createElement('span');oldEl.className='price-old';oldEl.textContent=`Rs ${old}`;priceBox.appendChild(oldEl);
-      const discount=Math.round(((old-cur)/old)*100);if(discount>0){const d=document.createElement('span');d.className='price-discount';d.textContent=`${discount}% OFF`;priceBox.appendChild(d);} }
-    deliveryPrice.appendChild(badge);
-    deliveryPrice.appendChild(priceBox);
+    const priceCard=document.createElement('div');
+    priceCard.className='price-card';
+    const curEl=document.createElement('span');curEl.className='current';curEl.textContent=cur?`Rs ${cur}`:'';
+    priceCard.appendChild(curEl);
+    if(old){const oldEl=document.createElement('span');oldEl.className='old';oldEl.textContent=`Rs ${old}`;priceCard.appendChild(oldEl);
+      const discount=Math.round(((old-cur)/old)*100);if(discount>0){const dis=document.createElement('span');dis.className='discount';dis.textContent=`${discount}% OFF`;priceCard.appendChild(dis);} }
+    summary.appendChild(deliveryBox);
+    summary.appendChild(priceCard);
     // Digital note
     const note=document.getElementById('digital-note');
     note.textContent=product.instant_delivery?'Digital Delivery: Receive via WhatsApp/Email.':'';
