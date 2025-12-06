@@ -12,7 +12,9 @@
   width: 100%;
   height: 100%;
   z-index: 10000;
+  /* Hidden by default; when visible, the JS sets display to 'flex' */
   display: none;
+  /* Use flexbox to center the modal horizontally and vertically */
   align-items: center;
   justify-content: center;
   font-family: inherit;

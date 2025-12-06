@@ -134,7 +134,10 @@
     const container = overlay.querySelector('.whop-container');
     container.innerHTML = embed;
     // Show overlay and load script
-    overlay.style.display = 'block';
+    // Show the overlay using flex to centre the modal.  The CSS hides
+    // the overlay by default with display:none; switching to flex
+    // activates the centering defined in whop.css.
+    overlay.style.display = 'flex';
     // Define fallback onComplete handler if none exists
     if (typeof window.whopCheckoutComplete !== 'function') {
       window.whopCheckoutComplete = function() {
