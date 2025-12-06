@@ -51,9 +51,17 @@ main {
   color: #0070f3;
   font-weight: 500;
 }
+/*
+ * The product page layout uses a two-column grid. Increase the left
+ * column fraction to give more space to the media (video) player,
+ * making it feel larger and more prominent. The previous ratio was
+ * 1.5fr:1fr (approx. 60/40). Changing to 2fr:1fr makes the media
+ * section occupy two-thirds of the available width on desktop while
+ * keeping the right-hand info panel readable.
+ */
 .product-page {
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
   grid-column-gap: 1.75rem;
   grid-row-gap: 1.5rem;
   align-items: flex-start;
@@ -70,6 +78,23 @@ main {
   max-width: 100%;
   border-radius: 12px;
   margin-bottom: 0.75rem;
+}
+
+/*
+ * When we embed videos from providers like YouTube or Vimeo via iframes,
+ * ensure the iframe behaves similarly to the native <video> element.
+ * We set the iframe to take up the full width of its container, apply
+ * a border radius and margin, and define an aspect ratio to preserve
+ * the player's dimensions. Browsers that support the aspect-ratio
+ * property will respect this; older browsers will simply allow the
+ * iframe to size naturally.
+ */
+.product-media iframe {
+  width: 100%;
+  max-width: 100%;
+  border-radius: 12px;
+  margin-bottom: 0.75rem;
+  aspect-ratio: 16 / 9;
 }
 .thumbnails {
   display: flex;

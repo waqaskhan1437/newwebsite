@@ -169,11 +169,69 @@ function renderProduct(el, product, addonGroups) {
   media.className = 'product-media';
   // Video or placeholder
   if (product.video_url) {
-    const video = document.createElement('video');
-    video.controls = true;
-    video.src = product.video_url;
-    video.innerHTML = 'Your browser does not support the video tag.';
-    media.appendChild(video);
+    const url = product.video_url;
+    /**
+     * Detects the provider based on the URL and returns an appropriate
+     * element for embedding. For YouTube and Vimeo we use an <iframe>
+     * embed; for other providers (e.g. Cloudinary, Bunny, direct MP4)
+     * we fall back to an HTML5 <video> element. This allows videos
+     * hosted on various platforms to play correctly without relying on
+     * unsupported formats in the native video element.
+     *
+     * @param {string} src
+     * @returns {HTMLElement}
+     */
+    function createVideoElement(src) {
+      // Helper to create iframe with common attributes
+      function makeIframe(embedSrc) {
+        const iframe = document.createElement('iframe');
+        iframe.src = embedSrc;
+        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+        iframe.allowFullscreen = true;
+        // Set attributes to ensure responsiveness
+        iframe.setAttribute('frameborder', '0');
+        return iframe;
+      }
+      // YouTube detection: matches watch, embed or shortened URLs
+      const ytRegex = /(?:youtube\.com\/(?:watch\?.*v=|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{6,11})/;
+      const ytMatch = src.match(ytRegex);
+      if (ytMatch && ytMatch[1]) {
+        const videoId = ytMatch[1];
+        const embedSrc = `https://www.youtube.com/embed/${videoId}`;
+        return makeIframe(embedSrc);
+      }
+      // Vimeo detection: matches vimeo.com/12345678 or player.vimeo.com/video/12345678
+      const vimeoRegex = /vimeo\.com\/(?:video\/)?(\d+)/;
+      const vimeoMatch = src.match(vimeoRegex);
+      if (vimeoMatch && vimeoMatch[1]) {
+        const videoId = vimeoMatch[1];
+        const embedSrc = `https://player.vimeo.com/video/${videoId}`;
+        return makeIframe(embedSrc);
+      }
+      // Bunny.net embed detection: if the URL already points to a Bunny Stream embed
+      // (mediadelivery.net) then we simply embed it via iframe. Bunny Stream embed
+      // URLs typically contain `/embed/` in the path. Treat these like other iframes
+      // rather than as direct MP4 files.
+      if (/mediadelivery\.net\/embed\//.test(src)) {
+        return makeIframe(src);
+      }
+      // If the URL looks like a direct video file (e.g. .mp4, .webm, .ogg, .m3u8),
+      // we use the native <video> tag. Otherwise, fallback to iframe embed for
+      // non‑standard providers (this covers cases like Bunny Stream when given
+      // a player URL without /embed/).
+      const directVideoExt = /\.(mp4|webm|ogg|m3u8)(\?.*)?$/i;
+      if (directVideoExt.test(src) || /(cloudinary\.com|bunnycdn\.ru|bunnycdn\.com|b-cdn\.net)/.test(src)) {
+        const video = document.createElement('video');
+        video.controls = true;
+        video.src = src;
+        video.innerHTML = 'Your browser does not support the video tag.';
+        return video;
+      }
+      // Default: embed unknown providers via iframe
+      return makeIframe(src);
+    }
+    const playerEl = createVideoElement(url);
+    media.appendChild(playerEl);
   }
   // Thumbnails (assuming multiple thumbnails in future; currently only one)
   const thumbs = document.createElement('div');
