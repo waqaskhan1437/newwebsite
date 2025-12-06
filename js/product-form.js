@@ -16,7 +16,9 @@
       if(product){
         fillBaseFields(form,product);
         if(typeof populateSeoForm==='function')populateSeoForm(form,product);
-        // addons load DB se jab backend ready hoga
+        if(product.addons && typeof window.populateAddonsFromConfig==='function'){
+          window.populateAddonsFromConfig(form,product.addons);
+        }
       }
     }catch(err){
       console.error('Failed to load product',err);
@@ -25,16 +27,30 @@
     fillDemoProduct(form);
   }
 
-  form.addEventListener('submit',e=>{
+  form.addEventListener('submit',async e=>{
     e.preventDefault();
     const base=collectBase(form);
     const media=readMediaFields(form);
     const seo=typeof readSeoFields==='function'?readSeoFields(form):{meta:{}};
     const addons=typeof readAddonsConfig==='function'?readAddonsConfig(form):[];
     const payload={...base,...media.meta,...seo.meta,addons};
-    console.log('Product payload',payload);
-    console.log('Media files for R2',media.files);
-    alert('Demo: form payload console me log ho gaya, backend save next step hai.');
+    if(productId)payload.id=Number(productId);
+    console.log('Media files for future R2 upload',media.files);
+    try{
+      const resp=await fetch('/api/admin/product/save',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(payload)
+      });
+      const data=await resp.json();
+      if(!resp.ok||!data.success){
+        throw new Error(data.error||'Save failed');
+      }
+      alert('Product save ho gaya. ID: '+data.id);
+    }catch(err){
+      console.error('Save error',err);
+      alert('Save error: '+(err.message||'unknown'));
+    }
   });
 })();
 
@@ -47,8 +63,7 @@ function setupGalleryField(form){
     if(!first)return;
     const clone=first.cloneNode(true);
     clone.querySelectorAll('input').forEach(inp=>{
-      if(inp.type==='file')inp.value='';
-      else inp.value='';
+      inp.value='';
     });
     wrapper.insertBefore(clone,addBtn);
   });
@@ -101,13 +116,15 @@ function fillBaseFields(form,product){
 function fillDemoProduct(form){
   form.title.value='Personalized greeting video from Africa';
   form.slug.value='personalized-greeting-video-from-africa';
-  form.description.value='Happy birthday style personalized video jahan performers aap ka naam board par likh kar wishes dete hain.';
+  form.description.value='Happy birthday style personalized greeting video jahan performers aap ka naam board par likh kar wishes dete hain.';
   form.normal_price.value='7200';
   form.sale_price.value='';
   form.instant_delivery.checked=false;
   form.normal_delivery_text.value='Standard delivery 3-5 days, rush delivery 24 hours tak.';
-  form.thumbnail_url.value='https://example.com/demo-thumb.jpg';
-  form.video_url.value='https://example.com/demo-video.mp4';
+  form.thumbnail_url.value='https://res.cloudinary.com/demo/image/upload/sample.jpg';
+  form.video_url.value='https://res.cloudinary.com/demo/video/upload/sample.mp4';
+  const galleryUrlInput=form.querySelector('input[name="gallery_urls[]"]');
+  if(galleryUrlInput)galleryUrlInput.value='https://res.cloudinary.com/demo/image/upload/sample.jpg';
   if(form.seo_title)form.seo_title.value='Personalized Greeting Video from Africa – Demo product';
   if(form.seo_description)form.seo_description.value='Demo product for testing: birthday greeting video with photos, custom message, song choice and extras.';
   if(form.seo_keywords)form.seo_keywords.value='greeting video, birthday video, africa team';
