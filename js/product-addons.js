@@ -1,22 +1,26 @@
 /*
- * Simple Globo-style product addons / form builder.
- * Har field ek line ke JSON object me save hota hai.
+ * Advanced but simple-looking product addons builder.
+ * Default state: sirf "Add field" button, koi complex cheez visible nahi.
  */
 
 ;(function () {
   const TYPES = [
+    { value: '', label: 'Select field type' },
     { value: 'heading', label: 'Heading' },
-    { value: 'text', label: 'Short text' },
-    { value: 'textarea', label: 'Long text' },
+    { value: 'text', label: 'Text field' },
+    { value: 'textarea', label: 'Long text / notes' },
     { value: 'email', label: 'Email' },
-    { value: 'select', label: 'Dropdown' },
+    { value: 'file', label: 'File upload' },
     { value: 'radio', label: 'Radio buttons' },
-    { value: 'checkbox_group', label: 'Checkbox group' },
-    { value: 'file', label: 'File upload' }
+    { value: 'select', label: 'Dropdown list' },
+    { value: 'checkbox_group', label: 'Checkbox group' }
   ];
 
   function slugify(str, index) {
-    const base = (str || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    const base = (str || '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
     return base || `field_${index}`;
   }
 
@@ -31,7 +35,7 @@
     let counter = 1;
 
     addBtn.addEventListener('click', () => {
-      list.appendChild(createFieldElement(counter++));
+      list.appendChild(createFieldRow(counter++));
       syncHidden(form);
     });
 
@@ -56,89 +60,127 @@
 
     builder.addEventListener('change', e => {
       if (e.target.matches('.addon-type')) {
-        updateFieldMode(e.target.closest('.addon-field'));
+        const fieldEl = e.target.closest('.addon-field');
+        renderTypeConfig(fieldEl);
+        syncHidden(form);
       }
-      syncHidden(form);
     });
 
     builder.addEventListener('input', () => syncHidden(form));
-
-    // start with ek khali field
-    list.appendChild(createFieldElement(counter++));
-    syncHidden(form);
   }
 
-  function createFieldElement(index) {
+  function createFieldRow(index) {
     const wrapper = document.createElement('div');
     wrapper.className = 'addon-field';
     wrapper.dataset.index = String(index);
     wrapper.innerHTML = [
-      '<div class="addon-field-header">',
-      '  <strong class="addon-field-title">New field</strong>',
-      '  <button type="button" class="btn addon-remove-field">Remove</button>',
-      '</div>',
-      '<div class="addon-field-body">',
-      '  <label>Label',
-      '    <input type="text" class="addon-label" placeholder="e.g. What shall we say?">',
-      '  </label>',
-      '  <label>Type',
-      '    <select class="addon-type">',
-           TYPES.map(t => `      <option value="${t.value}">${t.label}</option>`).join(''),
-      '    </select>',
-      '  </label>',
-      '  <label>Placeholder',
-      '    <input type="text" class="addon-placeholder" placeholder="Optional placeholder text">',
-      '  </label>',
-      '  <label>Help text',
-      '    <input type="text" class="addon-help" placeholder="Short hint for customer">',
-      '  </label>',
-      '  <label>Required',
-      '    <input type="checkbox" class="addon-required">',
-      '  </label>',
-      '  <label>Base extra price',
-      '    <input type="number" step="0.01" class="addon-price" value="0">',
-      '  </label>',
-      '  <div class="addon-options-wrap">',
-      '    <div class="addon-options"></div>',
-      '    <button type="button" class="btn addon-add-option">Add option</button>',
-      '    <p class="field-note">Options sirf dropdown, radio aur checkbox group k liye hain.</p>',
-      '  </div>',
-      '  <div class="addon-file-wrap">',
-      '    <label><input type="checkbox" class="addon-file-multi"> Allow multiple files</label>',
-      '    <label><input type="checkbox" class="addon-file-qty"> Ask for quantity</label>',
-      '    <label>Price per file / unit',
-      '      <input type="number" step="0.01" class="addon-file-price" value="0">',
+      '<div class="addon-row-header">',
+      '  <div class="addon-row-main">',
+      '    <label>Field type',
+      '      <select class="addon-type">',
+           TYPES.map(t => `        <option value="${t.value}">${t.label}</option>`).join(''),
+      '      </select>',
+      '    </label>',
+      '    <label class="addon-label-wrap">Label',
+      '      <input type="text" class="addon-label" placeholder="e.g. Choose song">',
       '    </label>',
       '  </div>',
-      '</div>'
+      '  <button type="button" class="btn btn-secondary addon-remove-field">Remove</button>',
+      '</div>',
+      '<div class="addon-row-config"></div>'
     ].join('\n');
-
-    // default ek option row bana do taake user ko samaj aa jaye
-    const optsWrap = wrapper.querySelector('.addon-options');
-    if (optsWrap) {
-      optsWrap.appendChild(createOptionRow());
-    }
-    // initial mode update
-    updateFieldMode(wrapper);
     return wrapper;
   }
 
-  function updateFieldMode(fieldEl) {
+  function renderTypeConfig(fieldEl) {
     if (!fieldEl) return;
-    const type = fieldEl.querySelector('.addon-type')?.value || 'text';
-    const optionsWrap = fieldEl.querySelector('.addon-options-wrap');
-    const fileWrap = fieldEl.querySelector('.addon-file-wrap');
-    const title = fieldEl.querySelector('.addon-field-title');
-    if (title) {
-      const label = fieldEl.querySelector('.addon-label')?.value || 'Field';
-      title.textContent = label;
+    const type = fieldEl.querySelector('.addon-type')?.value || '';
+    const cfg = fieldEl.querySelector('.addon-row-config');
+    const labelInput = fieldEl.querySelector('.addon-label');
+    const title = labelInput && labelInput.value ? labelInput.value : '';
+    if (!cfg) return;
+
+    if (!type) {
+      cfg.innerHTML = '<p class="field-note">Field type select karo, phir yahan uski settings nazar aayengi.</p>';
+      return;
     }
-    if (optionsWrap) {
-      const showOptions = type === 'select' || type === 'radio' || type === 'checkbox_group';
-      optionsWrap.style.display = showOptions ? 'block' : 'none';
+
+    if (type === 'heading') {
+      cfg.innerHTML = [
+        '<div class="form-field">',
+        '  <span class="field-note">Heading sirf text show karega, koi input nahi.</span>',
+        '  <label>Heading text',
+        `    <input type="text" class="addon-heading-text" value="${escapeAttr(title)}" placeholder="Section heading">`,
+        '  </label>',
+        '</div>'
+      ].join('\n');
+      return;
     }
-    if (fileWrap) {
-      fileWrap.style.display = type === 'file' ? 'block' : 'none';
+
+    if (type === 'text' || type === 'textarea' || type === 'email') {
+      cfg.innerHTML = [
+        '<div class="form-grid-2">',
+        '  <div class="form-field">',
+        '    <label>Placeholder',
+        '      <input type="text" class="addon-placeholder" placeholder="Optional placeholder">',
+        '    </label>',
+        '  </div>',
+        '  <div class="form-field">',
+        '    <label>Extra price',
+        '      <input type="number" step="0.01" class="addon-price" value="0">',
+        '    </label>',
+        '  </div>',
+        '</div>',
+        '<div class="form-field form-field-inline">',
+        '  <label>',
+        '    <input type="checkbox" class="addon-required"> Required',
+        '  </label>',
+        '</div>'
+      ].join('\n');
+      return;
+    }
+
+    if (type === 'file') {
+      cfg.innerHTML = [
+        '<div class="form-grid-2">',
+        '  <div class="form-field">',
+        '    <label>Price per file / unit',
+        '      <input type="number" step="0.01" class="addon-file-price" value="0">',
+        '    </label>',
+        '  </div>',
+        '  <div class="form-field form-field-inline">',
+        '    <label>',
+        '      <input type="checkbox" class="addon-required"> Required',
+        '    </label>',
+        '  </div>',
+        '</div>',
+        '<div class="form-grid-2">',
+        '  <div class="form-field form-field-inline">',
+        '    <label>',
+        '      <input type="checkbox" class="addon-file-multi"> Allow multiple files',
+        '    </label>',
+        '  </div>',
+        '  <div class="form-field form-field-inline">',
+        '    <label>',
+        '      <input type="checkbox" class="addon-file-qty"> Ask for quantity',
+        '    </label>',
+        '  </div>',
+        '</div>'
+      ].join('\n');
+      return;
+    }
+
+    if (type === 'radio' || type === 'select' || type === 'checkbox_group') {
+      cfg.innerHTML = [
+        '<p class="field-note">Har option ke saath price, file, quantity aur text field ka toggle hai.</p>',
+        '<div class="addon-options"></div>',
+        '<button type="button" class="btn btn-secondary addon-add-option">Add option</button>'
+      ].join('\n');
+      const wrap = fieldEl.querySelector('.addon-options');
+      if (wrap && !wrap.querySelector('.addon-option-row')) {
+        wrap.appendChild(createOptionRow());
+      }
+      return;
     }
   }
 
@@ -146,64 +188,77 @@
     const row = document.createElement('div');
     row.className = 'addon-option-row';
     row.innerHTML = [
-      '<label>Option label',
-      '  <input type="text" class="addon-opt-label" placeholder="Option text">',
-      '</label>',
-      '<label>Extra price',
-      '  <input type="number" step="0.01" class="addon-opt-price" value="0">',
-      '</label>',
-      '<label>Max files (optional)',
-      '  <input type="number" min="0" class="addon-opt-maxfiles">',
-      '</label>',
-      '<label>',
-      '  <input type="checkbox" class="addon-opt-default"> Default',
-      '</label>',
-      '<button type="button" class="btn addon-remove-option">Remove</button>'
+      '<div class="form-grid-2 addon-option-main">',
+      '  <div class="form-field">',
+      '    <label>Option label',
+      '      <input type="text" class="addon-opt-label" placeholder="e.g. 1 photo">',
+      '    </label>',
+      '  </div>',
+      '  <div class="form-field">',
+      '    <label>Extra price',
+      '      <input type="number" step="0.01" class="addon-opt-price" value="0">',
+      '    </label>',
+      '  </div>',
+      '</div>',
+      '<div class="addon-option-flags">',
+      '  <label><input type="checkbox" class="addon-opt-file"> File</label>',
+      '  <label><input type="checkbox" class="addon-opt-qty"> Quantity</label>',
+      '  <label><input type="checkbox" class="addon-opt-field"> Text field</label>',
+      '  <label><input type="checkbox" class="addon-opt-default"> Default</label>',
+      '  <button type="button" class="btn btn-secondary addon-remove-option">Remove</button>',
+      '</div>'
     ].join('\n');
     return row;
   }
 
   function buildConfig(form) {
-    const fields = [];
+    const result = [];
     const builder = form.querySelector('#addons-builder');
-    if (!builder) return fields;
+    if (!builder) return result;
     const fieldEls = builder.querySelectorAll('.addon-field');
     fieldEls.forEach((fieldEl, idx) => {
-      const type = fieldEl.querySelector('.addon-type').value;
-      const label = fieldEl.querySelector('.addon-label').value.trim();
+      const type = fieldEl.querySelector('.addon-type')?.value || '';
+      const label = fieldEl.querySelector('.addon-label')?.value.trim() || '';
+      if (!type) return;
       if (!label && type !== 'heading') return;
-      const placeholder = fieldEl.querySelector('.addon-placeholder').value.trim();
-      const help = fieldEl.querySelector('.addon-help').value.trim();
-      const required = !!fieldEl.querySelector('.addon-required').checked;
-      const price = parseFloat(fieldEl.querySelector('.addon-price').value || '0') || 0;
       const id = slugify(label, idx + 1);
-      const field = { id, type, label, placeholder, helpText: help, required, price };
+      const field = { id, type, label };
 
-      if (type === 'select' || type === 'radio' || type === 'checkbox_group') {
+      if (type === 'heading') {
+        const txt = fieldEl.querySelector('.addon-heading-text')?.value.trim() || label;
+        field.text = txt;
+      } else if (type === 'text' || type === 'textarea' || type === 'email') {
+        field.placeholder = fieldEl.querySelector('.addon-placeholder')?.value.trim() || '';
+        field.price = numVal(fieldEl.querySelector('.addon-price')?.value);
+        field.required = !!fieldEl.querySelector('.addon-required')?.checked;
+      } else if (type === 'file') {
+        field.file = {
+          pricePerUnit: numVal(fieldEl.querySelector('.addon-file-price')?.value),
+          multiple: !!fieldEl.querySelector('.addon-file-multi')?.checked,
+          askQuantity: !!fieldEl.querySelector('.addon-file-qty')?.checked
+        };
+        field.required = !!fieldEl.querySelector('.addon-required')?.checked;
+      } else if (type === 'radio' || type === 'select' || type === 'checkbox_group') {
         const options = [];
         fieldEl.querySelectorAll('.addon-option-row').forEach(row => {
-          const ol = row.querySelector('.addon-opt-label').value.trim();
-          if (!ol) return;
-          const op = parseFloat(row.querySelector('.addon-opt-price').value || '0') || 0;
-          const maxFilesRaw = row.querySelector('.addon-opt-maxfiles').value;
-          const maxFiles = maxFilesRaw ? parseInt(maxFilesRaw, 10) : null;
-          const def = !!row.querySelector('.addon-opt-default').checked;
-          options.push({ label: ol, price: op, default: def, maxFiles });
+          const oLabel = row.querySelector('.addon-opt-label')?.value.trim() || '';
+          if (!oLabel) return;
+          options.push({
+            label: oLabel,
+            price: numVal(row.querySelector('.addon-opt-price')?.value),
+            file: !!row.querySelector('.addon-opt-file')?.checked,
+            quantity: !!row.querySelector('.addon-opt-qty')?.checked,
+            textField: !!row.querySelector('.addon-opt-field')?.checked,
+            default: !!row.querySelector('.addon-opt-default')?.checked
+          });
         });
+        if (!options.length) return;
         field.options = options;
       }
 
-      if (type === 'file') {
-        field.file = {
-          multiple: !!fieldEl.querySelector('.addon-file-multi').checked,
-          askQuantity: !!fieldEl.querySelector('.addon-file-qty').checked,
-          pricePerUnit: parseFloat(fieldEl.querySelector('.addon-file-price').value || '0') || 0
-        };
-      }
-
-      fields.push(field);
+      result.push(field);
     });
-    return fields;
+    return result;
   }
 
   function syncHidden(form) {
@@ -211,6 +266,16 @@
     if (!hidden) return;
     const cfg = buildConfig(form);
     hidden.value = cfg.length ? JSON.stringify(cfg) : '';
+  }
+
+  function numVal(v) {
+    if (!v) return 0;
+    const n = parseFloat(v);
+    return isNaN(n) ? 0 : n;
+  }
+
+  function escapeAttr(str) {
+    return (str || '').replace(/"/g, '&quot;');
   }
 
   window.initAddonsBuilder = initAddonsBuilder;
