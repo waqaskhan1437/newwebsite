@@ -3,15 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin – Products</title>
+  <title>Admin Dashboard – Products</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
-<body>
-  <main>
-    <h1>Admin – Products</h1>
-    <a href="product-form.html" class="btn">Add New Product</a>
-    <table id="admin-table" class="admin-table"></table>
-  </main>
+<body class="admin-page">
+  <div class="admin-shell">
+    <header class="admin-header">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h1>Products Dashboard</h1>
+          <p class="admin-subtitle">Manage your store catalog, edit prices, and update media.</p>
+        </div>
+        <a href="product-form.html" class="btn">Add New Product</a>
+      </div>
+    </header>
+    <main>
+      <div class="card-section">
+        <table id="admin-table" class="admin-table" style="margin-top: 0;">
+          </table>
+      </div>
+    </main>
+  </div>
   <script src="../js/api.js"></script>
   <script src="../js/admin.js"></script>
 </body>

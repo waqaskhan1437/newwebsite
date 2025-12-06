@@ -3,22 +3,62 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title id="page-title">Product Detail</title>
-  <meta id="meta-description" name="description" content="">
-  <meta id="meta-keywords" name="keywords" content="">
-  <link id="meta-canonical" rel="canonical" href="">
+  
+  <title>Loading Product... | WishVideo</title>
+  <meta name="description" content="Custom personalized video greetings from Africa.">
+  <meta name="keywords" content="video, greeting, birthday, wish, africa">
+  
   <meta property="og:type" content="product">
-  <meta property="og:title" id="og-title" content="">
-  <meta property="og:description" id="og-description" content="">
-  <meta property="og:url" id="og-url" content="">
-  <meta property="og:image" id="og-image" content="">
+  <meta property="og:title" content="Loading...">
+  <meta property="og:description" content="">
+  <meta property="og:image" content="">
+
+  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+
   <link rel="stylesheet" href="css/style.css">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo">WISHVIDEO</div>
+      <nav class="site-nav">
+        <a href="/">Home</a>
+        <a href="/all-products">All Products</a>
+        <a href="/about">About Us</a>
+        <a href="/contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
   <main>
-    <div id="product-container">Loading…</div>
+    <div class="breadcrumb">
+      <a href="/">&larr; Back to Home</a>
+    </div>
+
+    <div id="product-container" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading amazing product...</p>
+    </div>
   </main>
+
+  <footer class="site-footer">
+    <p>&copy; 2025 WishVideo. All rights reserved.</p>
+  </footer>
+
+  <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+
   <script src="js/api.js"></script>
-  <script src="js/product.js"></script>
+  <!-- load product modules in dependency order -->
+  <script src="js/product/addon-ui.js"></script>
+  <script src="js/product/seo-utils.js"></script>
+  <script src="js/product/layout-main.js"></script>
+  <script src="js/product/layout-extra.js"></script>
+  <script src="js/product/checkout.js"></script>
+  <script src="js/product/main.js"></script>
 </body>
 </html>

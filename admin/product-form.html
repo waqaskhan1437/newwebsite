@@ -10,38 +10,38 @@
   <div class="admin-shell">
     <header class="admin-header">
       <h1>Product Form</h1>
-      <p class="admin-subtitle">Yahan se product info, media, custom form fields aur SEO sab ek jagah manage hota hai.</p>
+      <p class="admin-subtitle">Manage product details, media, custom addons, and SEO in one place.</p>
     </header>
     <main>
       <form id="product-form" class="admin-form">
         <section class="card-section">
-          <h2 class="section-title">Basic details</h2>
+          <h2 class="section-title">Basic Details</h2>
           <div class="form-grid-2">
             <div class="form-field">
               <label>Title
-                <input type="text" name="title" required>
+                <input type="text" name="title" required placeholder="e.g. Birthday Greeting Video">
               </label>
             </div>
             <div class="form-field">
               <label>Slug
-                <input type="text" name="slug">
+                <input type="text" name="slug" placeholder="auto-generated-from-title">
               </label>
             </div>
           </div>
           <div class="form-field">
             <label>Description
-              <textarea name="description" rows="3"></textarea>
+              <textarea name="description" rows="3" placeholder="Product description..."></textarea>
             </label>
           </div>
           <div class="form-grid-2">
             <div class="form-field">
-              <label>Normal Price
-                <input type="number" name="normal_price" step="0.01">
+              <label>Normal Price ($)
+                <input type="number" name="normal_price" step="0.01" placeholder="0.00">
               </label>
             </div>
             <div class="form-field">
-              <label>Sale Price
-                <input type="number" name="sale_price" step="0.01">
+              <label>Sale Price ($)
+                <input type="number" name="sale_price" step="0.01" placeholder="Optional sale price">
               </label>
             </div>
           </div>
@@ -49,12 +49,12 @@
             <div class="form-field form-field-inline">
               <label>
                 <input type="checkbox" name="instant_delivery">
-                <span>Instant Delivery</span>
+                <span>Instant Delivery (Automated)</span>
               </label>
             </div>
             <div class="form-field">
               <label>Normal Delivery Text
-                <input type="text" name="normal_delivery_text">
+                <input type="text" name="normal_delivery_text" placeholder="e.g. 24 Hours Delivery">
               </label>
             </div>
           </div>
@@ -63,36 +63,36 @@
         <section class="card-section">
           <h2 class="section-title">Media</h2>
           <fieldset class="field-group">
-            <legend>Thumbnail image</legend>
-            <label>Upload image
+            <legend>Thumbnail Image</legend>
+            <label>Upload Image
               <input type="file" name="thumbnail_file" accept="image/*">
             </label>
-            <span class="field-note">ya image URL</span>
+            <span class="field-note">or Image URL</span>
             <label>
               <input type="text" name="thumbnail_url" placeholder="https://example.com/thumb.jpg">
             </label>
           </fieldset>
 
           <fieldset class="field-group" id="gallery-wrapper">
-            <legend>Gallery images</legend>
+            <legend>Gallery Images</legend>
             <div class="gallery-row">
-              <label>Upload image
+              <label>Upload Image
                 <input type="file" name="gallery_files[]" accept="image/*">
               </label>
-              <span class="field-note">ya image URL</span>
+              <span class="field-note">or URL</span>
               <label>
                 <input type="text" name="gallery_urls[]" placeholder="https://example.com/image.jpg">
               </label>
             </div>
-            <button type="button" id="add-gallery-image" class="btn btn-secondary">Add more images</button>
+            <button type="button" id="add-gallery-image" class="btn btn-secondary">Add More Images</button>
           </fieldset>
 
           <fieldset class="field-group">
-            <legend>Product video</legend>
-            <label>Upload video
+            <legend>Product Video</legend>
+            <label>Upload Video
               <input type="file" name="video_file" accept="video/*">
             </label>
-            <span class="field-note">ya video URL</span>
+            <span class="field-note">or Video URL</span>
             <label>
               <input type="text" name="video_url" placeholder="https://example.com/video.mp4">
             </label>
@@ -100,41 +100,47 @@
         </section>
 
         <section class="card-section">
-          <h2 class="section-title">Custom form fields (addons)</h2>
+          <h2 class="section-title">Custom Fields (Addons)</h2>
           <fieldset class="field-group" id="addons-builder">
-            <p class="field-note">Globo style form: dropdowns, radio buttons, checkboxes, file uploads waghera yahan se add karo.</p>
+            <p class="field-note">Create custom options like dropdowns, checkboxes, and file uploads for customers.</p>
             <div id="addons-fields"></div>
-            <button type="button" id="add-addon-field" class="btn">Add field</button>
+            <button type="button" id="add-addon-field" class="btn">Add New Field</button>
             <input type="hidden" name="addons_json" id="addons-json">
           </fieldset>
         </section>
 
         <section class="card-section">
-          <h2 class="section-title">SEO settings</h2>
+          <h2 class="section-title">SEO Settings</h2>
           <fieldset class="field-group">
-            <label>SEO meta title
-              <input type="text" name="seo_title" maxlength="160">
+            <label>Meta Title
+              <input type="text" name="seo_title" maxlength="160" placeholder="SEO Title">
             </label>
-            <label>SEO meta description
-              <textarea name="seo_description" rows="3" maxlength="320"></textarea>
+            <label>Meta Description
+              <textarea name="seo_description" rows="3" maxlength="320" placeholder="SEO Description"></textarea>
             </label>
-            <label>SEO focus keywords
+            <label>Focus Keywords
               <input type="text" name="seo_keywords" placeholder="keyword1, keyword2">
             </label>
-            <label>Canonical URL (optional)
+            <label>Canonical URL (Optional)
               <input type="text" name="seo_canonical" placeholder="https://example.com/product">
             </label>
           </fieldset>
         </section>
 
         <div class="form-actions">
-          <button type="submit" class="btn">Save product</button>
+          <button type="submit" class="btn">Save Product</button>
         </div>
       </form>
     </main>
   </div>
   <script src="../js/api.js"></script>
-  <script src="../js/product-addons.js"></script>
+  <!-- load addon builder modules (split into multiple smaller files) -->
+  <script src="../js/addons/data.js"></script>
+  <script src="../js/addons/utils.js"></script>
+  <script src="../js/addons/fields.js"></script>
+  <script src="../js/addons/config.js"></script>
+  <script src="../js/addons/builder.js"></script>
+  <!-- other logic -->
   <script src="../js/product-seo.js"></script>
   <script src="../js/product-form.js"></script>
 </body>
